@@ -1009,6 +1009,13 @@ $dockbarOpenGradientStart: #0EA6F9;
 		}
 	}
 
+	/* ---------- Label and text input of "Use Small Image" from Abstract panel ---------- */
+
+	#_161_smallFile,
+	#_161_smallImageURL{
+		width: 400px;
+	}
+
 	/* ---------- Extras dockbar ---------- */
 
 	.dockbar {

@@ -967,6 +967,13 @@ $dockbarOpenGradientStart: #0EA6F9;
 		}
 	}
 
+	/* ---------- Label and text input of "Use Small Image" from Abstract panel ---------- */
+
+	#_161_smallFile.lfr-blogs-small-image-value,
+	#_161_smallImageURL.lfr-blogs-small-image-value {
+		width: 300px;
+	}
+
 	/* ---------- Alloy editor ---------- */
 
 	.alloy-editor {

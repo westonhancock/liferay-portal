@@ -289,7 +289,7 @@ portletURL.setParameter("roleId", String.valueOf(role.getRoleId()));
 					noticeClass: 'hide',
 					timeout: 10000,
 					toggleText: false,
-					type: 'warning',
+					type: 'danger',
 					useAnimation: true
 				}
 			);

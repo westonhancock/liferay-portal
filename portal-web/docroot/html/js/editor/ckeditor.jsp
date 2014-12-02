@@ -606,6 +606,11 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 			success();
 		}
 	};
+
+	A.getWin().on('resize', function() {
+		CKEDITOR.instances.<%= name %>.destroy();
+		createEditor();
+	});
 </aui:script>
 
 <%!

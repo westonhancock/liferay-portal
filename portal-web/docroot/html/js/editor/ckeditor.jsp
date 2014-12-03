@@ -305,6 +305,7 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 			}
 		);
 	</c:if>
+	var currentToolbarSet;
 
 	var createEditor = function() {
 		var Util = Liferay.Util;
@@ -325,6 +326,8 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 
 			return toolbarSet;
 		}
+
+		currentToolbarSet = getToolbarSet();
 
 		function initData() {
 			<c:if test="<%= Validator.isNotNull(initMethod) && !(inlineEdit && Validator.isNotNull(inlineEditSaveURL)) %>">
@@ -607,10 +610,33 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 		}
 	};
 
-	A.getWin().on('resize', function() {
-		CKEDITOR.instances.<%= name %>.destroy();
-		createEditor();
-	});
+	A.getWin().on(
+		'resize', 
+		A.debounce(function() {
+			var Util = Liferay.Util;
+
+			var newToolbar = function() {
+				CKEDITOR.instances.<%= name %>.destroy();
+				createEditor();
+			}
+
+			if (Util.isPhone()) {
+				if (currentToolbarSet != 'phone') {
+					newToolbar();
+				}
+			}
+			else if (Util.isTablet()) {
+				if (currentToolbarSet != 'tablet') {
+					newToolbar();
+				}
+			}
+			else {
+				if (currentToolbarSet) {
+					newToolbar();
+				}
+			}
+		}, 250, this)
+	);
 </aui:script>
 
 <%!

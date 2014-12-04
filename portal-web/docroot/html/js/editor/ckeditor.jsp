@@ -307,8 +307,22 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 	</c:if>
 	var currentToolbarSet;
 
-	var createEditor = function() {
+	var formatToolbarValue = '<%= TextFormatter.format(HtmlUtil.escapeJS(toolbarSet), TextFormatter.M) %>';
+
+	function getToolbarSet(toolbarSet) {
 		var Util = Liferay.Util;
+
+		if (Util.isPhone()) {
+			toolbarSet = 'phone';
+		}
+		else if (Util.isTablet()) {
+			toolbarSet = 'tablet';
+		}
+
+		return toolbarSet;
+	}
+
+	var createEditor = function() {
 
 		var editorNode = A.one('#<%= name %>');
 
@@ -316,18 +330,8 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 
 		editorNode.addClass('lfr-editable');
 
-		function getToolbarSet(toolbarSet) {
-			if (Util.isPhone()) {
-				toolbarSet = 'phone';
-			}
-			else if (Util.isTablet()) {
-				toolbarSet = 'tablet';
-			}
 
-			return toolbarSet;
-		}
-
-		currentToolbarSet = getToolbarSet();
+		currentToolbarSet = getToolbarSet(formatToolbarValue);
 
 		function initData() {
 			<c:if test="<%= Validator.isNotNull(initMethod) && !(inlineEdit && Validator.isNotNull(inlineEditSaveURL)) %>">
@@ -399,7 +403,7 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 				</c:choose>
 
 				filebrowserUploadUrl: null,
-				toolbar: getToolbarSet('<%= TextFormatter.format(HtmlUtil.escapeJS(toolbarSet), TextFormatter.M) %>')
+				toolbar: currentToolbarSet
 			}
 		);
 
@@ -613,27 +617,9 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 	A.getWin().on(
 		'resize', 
 		A.debounce(function() {
-			var Util = Liferay.Util;
-
-			var newToolbar = function() {
+			if (currentToolbarSet != getToolbarSet(formatToolbarValue)) {
 				CKEDITOR.instances.<%= name %>.destroy();
 				createEditor();
-			}
-
-			if (Util.isPhone()) {
-				if (currentToolbarSet != 'phone') {
-					newToolbar();
-				}
-			}
-			else if (Util.isTablet()) {
-				if (currentToolbarSet != 'tablet') {
-					newToolbar();
-				}
-			}
-			else {
-				if (currentToolbarSet) {
-					newToolbar();
-				}
 			}
 		}, 250, this)
 	);

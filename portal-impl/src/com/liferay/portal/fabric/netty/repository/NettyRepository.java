@@ -17,7 +17,6 @@ package com.liferay.portal.fabric.netty.repository;
 import com.liferay.portal.fabric.netty.fileserver.FileHelperUtil;
 import com.liferay.portal.fabric.netty.fileserver.FileRequest;
 import com.liferay.portal.fabric.netty.fileserver.FileResponse;
-import com.liferay.portal.fabric.netty.fileserver.handlers.FileResponseChannelHandler;
 import com.liferay.portal.fabric.netty.util.NettyUtil;
 import com.liferay.portal.fabric.repository.Repository;
 import com.liferay.portal.fabric.repository.RepositoryHelperUtil;
@@ -32,8 +31,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelPipeline;
-import io.netty.util.concurrent.EventExecutorGroup;
 
 import java.io.IOException;
 
@@ -42,7 +39,9 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.FileTime;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -50,22 +49,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Shuyang Zhou
  */
-public class NettyRepository implements Repository {
+public class NettyRepository implements Repository<Channel> {
 
-	public NettyRepository(
-		Path repositoryPath, Channel channel,
-		EventExecutorGroup eventExecutorGroup, long getFileTimeout) {
-
+	public NettyRepository(Path repositoryPath, long getFileTimeout) {
 		if (repositoryPath == null) {
 			throw new NullPointerException("Repository path is null");
-		}
-
-		if (channel == null) {
-			throw new NullPointerException("Channel is null");
-		}
-
-		if (eventExecutorGroup == null) {
-			throw new NullPointerException("Event executor group is null");
 		}
 
 		if (!Files.isDirectory(repositoryPath)) {
@@ -74,22 +62,22 @@ public class NettyRepository implements Repository {
 		}
 
 		this.repositoryPath = repositoryPath;
-		this.channel = channel;
 		this.getFileTimeout = getFileTimeout;
-
-		ChannelPipeline channelPipeline = channel.pipeline();
-
-		channelPipeline.addLast(
-			new FileResponseChannelHandler(asyncBroker, eventExecutorGroup));
 	}
 
 	@Override
 	public void dispose(boolean delete) {
-		for (Path path : pathMap.values()) {
-			FileHelperUtil.delete(true, path);
-		}
+		Set<Map.Entry<Path, Path>> entrySet = pathMap.entrySet();
 
-		pathMap.clear();
+		Iterator<Map.Entry<Path, Path>> iterator = entrySet.iterator();
+
+		while (iterator.hasNext()) {
+			Map.Entry<Path, Path> entry = iterator.next();
+
+			iterator.remove();
+
+			FileHelperUtil.delete(true, entry.getValue());
+		}
 
 		if (delete) {
 			FileHelperUtil.delete(true, repositoryPath);
@@ -97,26 +85,33 @@ public class NettyRepository implements Repository {
 	}
 
 	@Override
+	public AsyncBroker<Path, FileResponse> getAsyncBroker() {
+		return asyncBroker;
+	}
+
+	@Override
 	public NoticeableFuture<Path> getFile(
-		Path remoteFilePath, Path localFilePath, boolean deleteAfterFetch) {
+		Channel channel, Path remoteFilePath, Path localFilePath,
+		boolean deleteAfterFetch) {
 
 		if (localFilePath == null) {
 			return getFile(
-				remoteFilePath,
+				channel, remoteFilePath,
 				RepositoryHelperUtil.getRepositoryFilePath(
 					repositoryPath, remoteFilePath),
 				deleteAfterFetch, true);
 		}
 
-		return getFile(remoteFilePath, localFilePath, deleteAfterFetch, false);
+		return getFile(
+			channel, remoteFilePath, localFilePath, deleteAfterFetch, false);
 	}
 
 	@Override
 	public NoticeableFuture<Map<Path, Path>> getFiles(
-		Map<Path, Path> pathMap, boolean deleteAfterFetch) {
+		Channel channel, Map<Path, Path> pathMap, boolean deleteAfterFetch) {
 
 		final DefaultNoticeableFuture<Map<Path, Path>> defaultNoticeableFuture =
-			new DefaultNoticeableFuture<Map<Path, Path>>();
+			new DefaultNoticeableFuture<>();
 
 		if (pathMap.isEmpty()) {
 			defaultNoticeableFuture.set(pathMap);
@@ -124,8 +119,7 @@ public class NettyRepository implements Repository {
 			return defaultNoticeableFuture;
 		}
 
-		final Map<Path, Path> resultPathMap =
-			new ConcurrentHashMap<Path, Path>();
+		final Map<Path, Path> resultPathMap = new ConcurrentHashMap<>();
 
 		final AtomicInteger counter = new AtomicInteger(pathMap.size());
 
@@ -133,7 +127,7 @@ public class NettyRepository implements Repository {
 			final Path remoteFilePath = entry.getKey();
 
 			NoticeableFuture<Path> noticeableFuture = getFile(
-				remoteFilePath, entry.getValue(), deleteAfterFetch);
+				channel, remoteFilePath, entry.getValue(), deleteAfterFetch);
 
 			noticeableFuture.addFutureListener(
 				new BaseFutureListener<Path>() {
@@ -190,7 +184,7 @@ public class NettyRepository implements Repository {
 	}
 
 	protected NoticeableFuture<Path> getFile(
-		final Path remoteFilePath, final Path localFilePath,
+		Channel channel, final Path remoteFilePath, final Path localFilePath,
 		boolean deleteAfterFetch, final boolean populateCache) {
 
 		if (_log.isDebugEnabled()) {
@@ -200,7 +194,7 @@ public class NettyRepository implements Repository {
 		final Path cachedLocalFilePath = pathMap.get(remoteFilePath);
 
 		final DefaultNoticeableFuture<FileResponse> defaultNoticeableFuture =
-			new DefaultNoticeableFuture<FileResponse>();
+			new DefaultNoticeableFuture<>();
 
 		NoticeableFuture<FileResponse> noticeableFuture = asyncBroker.post(
 			remoteFilePath, defaultNoticeableFuture);
@@ -321,11 +315,9 @@ public class NettyRepository implements Repository {
 	}
 
 	protected final AsyncBroker<Path, FileResponse> asyncBroker =
-		new AsyncBroker<Path, FileResponse>();
-	protected final Channel channel;
+		new AsyncBroker<>();
 	protected final long getFileTimeout;
-	protected final Map<Path, Path> pathMap =
-		new ConcurrentHashMap<Path, Path>();
+	protected final Map<Path, Path> pathMap = new ConcurrentHashMap<>();
 	protected final Path repositoryPath;
 
 	private static final Log _log = LogFactoryUtil.getLog(

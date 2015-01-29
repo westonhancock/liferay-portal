@@ -140,8 +140,8 @@ public class CompanyLocalServiceTest {
 		Group companyStagingGroup = GroupLocalServiceUtil.addGroup(
 			userId, GroupConstants.DEFAULT_PARENT_GROUP_ID,
 			companyGroup.getClassName(), companyGroup.getClassPK(),
-			companyGroup.getGroupId(), companyGroup.getDescriptiveName(),
-			companyGroup.getDescription(), companyGroup.getType(),
+			companyGroup.getGroupId(), RandomTestUtil.randomLocaleStringMap(),
+			RandomTestUtil.randomLocaleStringMap(), companyGroup.getType(),
 			companyGroup.isManualMembership(),
 			companyGroup.getMembershipRestriction(),
 			companyGroup.getFriendlyURL(), false, companyGroup.isActive(),
@@ -203,8 +203,7 @@ public class CompanyLocalServiceTest {
 		long userId = UserLocalServiceUtil.getDefaultUserId(companyId);
 
 		Group group = GroupTestUtil.addGroup(
-			companyId, userId, GroupConstants.DEFAULT_PARENT_GROUP_ID,
-			RandomTestUtil.randomString(), RandomTestUtil.randomString());
+			companyId, userId, GroupConstants.DEFAULT_PARENT_GROUP_ID);
 
 		LayoutSetPrototype layoutSetPrototype = addLayoutSetPrototype(
 			companyId, userId, RandomTestUtil.randomString());
@@ -235,12 +234,10 @@ public class CompanyLocalServiceTest {
 		long userId = UserLocalServiceUtil.getDefaultUserId(companyId);
 
 		Group parentGroup = GroupTestUtil.addGroup(
-			companyId, userId, GroupConstants.DEFAULT_PARENT_GROUP_ID,
-			RandomTestUtil.randomString(), RandomTestUtil.randomString());
+			companyId, userId, GroupConstants.DEFAULT_PARENT_GROUP_ID);
 
 		Group group = GroupTestUtil.addGroup(
-			companyId, userId, parentGroup.getGroupId(),
-			RandomTestUtil.randomString(), RandomTestUtil.randomString());
+			companyId, userId, parentGroup.getGroupId());
 
 		addUser(
 			companyId, userId, group.getGroupId(),
@@ -465,7 +462,8 @@ public class CompanyLocalServiceTest {
 		GroupLocalServiceUtil.updateGroup(group);
 
 		testUpdateAccountNames(
-			company, new String[] {StringPool.BLANK, group.getName()}, true);
+			company,
+			new String[] {StringPool.BLANK, group.getDescriptiveName()}, true);
 
 		GroupLocalServiceUtil.deleteGroup(group);
 
@@ -517,7 +515,7 @@ public class CompanyLocalServiceTest {
 			long companyId, long userId, String name)
 		throws Exception {
 
-		Map<Locale, String> nameMap = new HashMap<Locale, String>();
+		Map<Locale, String> nameMap = new HashMap<>();
 
 		nameMap.put(LocaleUtil.getDefault(), name);
 

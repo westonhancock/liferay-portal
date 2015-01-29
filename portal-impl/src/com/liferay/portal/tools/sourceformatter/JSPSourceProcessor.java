@@ -474,7 +474,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 	protected void format() throws Exception {
 		_moveFrequentlyUsedImportsToCommonInit = GetterUtil.getBoolean(
 			getProperty("move.frequently.used.imports.to.common.init"));
-		_unusedVariablesExclusions = getPropertyList(
+		_unusedVariablesExclusionFiles = getPropertyList(
 			"jsp.unused.variables.excludes.files");
 
 		String[] excludes = new String[] {"**\\null.jsp", "**\\tools\\**"};
@@ -609,8 +609,9 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 				}
 
 				if (javaSource && portalSource &&
-					!isExcluded(
-						_unusedVariablesExclusions, absolutePath, lineCount) &&
+					!isExcludedFile(
+						_unusedVariablesExclusionFiles, absolutePath,
+						lineCount) &&
 					!_jspContents.isEmpty() &&
 					hasUnusedVariable(fileName, trimmedLine)) {
 
@@ -1235,9 +1236,16 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			return false;
 		}
 
-		String regex = "[^A-Za-z0-9_\"]" + variableName + "[^A-Za-z0-9_\"]";
+		StringBundler sb = new StringBundler(6);
 
-		return hasUnusedJSPTerm(fileName, regex, "variable");
+		sb.append("((/)|(\\*)|(\\+(\\+)?)|(-(-)?)|\\(|=)?( )?");
+		sb.append(variableName);
+		sb.append("( )?(\\.");
+		sb.append("|(((\\+)|(-)|(\\*)|(/)|(%)|(\\|)|(&)|(\\^))?(=))");
+		sb.append("|(\\+(\\+)?)|(-(-)?)");
+		sb.append("|(\\)))?");
+
+		return hasUnusedJSPTerm(fileName, sb.toString(), "variable");
 	}
 
 	protected boolean isJSPDuplicateImport(
@@ -1520,14 +1528,14 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 		"(?:confirmation|label|(?:M|m)essage|message key|names|title)=\"[^A-Z" +
 			"<=%\\[\\s]+\"");
 	private Pattern _taglibLanguageKeyPattern2 = Pattern.compile(
-		"(aui:)(?:input|select|field-wrapper) (?!.*label=(?:'|\").+(?:'|\").*" +
+		"(aui:)(?:input|select|field-wrapper) (?!.*label=(?:'|\").*(?:'|\").*" +
 			"name=\"[^<=%\\[\\s]+\")(?!.*name=\"[^<=%\\[\\s]+\".*title=" +
 				"(?:'|\").+(?:'|\"))(?!.*name=\"[^<=%\\[\\s]+\".*type=\"" +
 					"hidden\").*name=\"([^<=%\\[\\s]+)\"");
 	private Pattern _taglibLanguageKeyPattern3 = Pattern.compile(
 		"(liferay-ui:)(?:input-resource) .*id=\"([^<=%\\[\\s]+)\"(?!.*title=" +
 			"(?:'|\").+(?:'|\"))");
-	private List<String> _unusedVariablesExclusions;
+	private List<String> _unusedVariablesExclusionFiles;
 	private String _utilTaglibDirName;
 	private Pattern _xssPattern = Pattern.compile(
 		"\\s+([^\\s]+)\\s*=\\s*(Bean)?ParamUtil\\.getString\\(");

@@ -1,3 +1,5 @@
+@import url(common_main.css);
+
 .portlet-blogs {
 	.taglib-custom-attributes-list {
 		margin-bottom: 1em;
@@ -5,6 +7,22 @@
 
 	.taglib-custom-attributes-list label {
 		display: block;
+	}
+
+	.edit-entry {
+		h3 {
+			color: #2B4256;
+			font-size: 22px;
+			margin-top: 0;
+		}
+
+		.explanation {
+			font-weight: normal;
+		}
+	}
+
+	.display-date-wrapper {
+		padding-top: 40px;
 	}
 
 	.entry-author {
@@ -21,23 +39,15 @@
 		margin-bottom: 10px;
 	}
 
+	.edit-actions {
+		padding-left: 0;
+	}
+
 	.entry-abstract-wrapper {
 		color: #2B4256;
 
-		h3 {
-			border-top: 1px solid #CCC;
-			color: #2B4256;
-			font-size: 22px;
-			margin-top: 0;
-			padding-top: 40px;
-		}
-
 		.entry-abstract-options {
 			margin-top: 20px;
-		}
-
-		.abstract-explanation {
-			font-weight: normal;
 		}
 
 		.entry-abstract {
@@ -46,8 +56,19 @@
 
 			.lfr-blogs-small-image-selector {
 				float: left;
-				margin-bottom: 30px;
 				width: 200px;
+
+				.taglib-image-selector {
+					min-height: 150px;
+
+					.drag-drop-label {
+						font-size: 15px;
+					}
+
+					.file-validation-info {
+						font-size: 13px;
+					}
+				}
 			}
 
 			.entry-description {
@@ -58,8 +79,9 @@
 		}
 	}
 
-	.entry-date {
-		color: #999;
+	.read-more {
+		font-size: 14px;
+		margin-bottom: 40px;
 	}
 
 	.entry-footer:after {
@@ -90,6 +112,24 @@
 		}
 	}
 
+	.edit-entry {
+		.entry-status {
+			padding-left: 30px;
+		}
+
+		.entry-title, .entry-subtitle, .entry-body {
+			margin-left: 24px;
+		}
+
+		.entry-body {
+			padding-bottom: 60px;
+		}
+
+		.entry-subtitle {
+			margin-bottom: 30px;
+		}
+	}
+
 	.entry-title {
 		display: block;
 		font-weight: bold;
@@ -108,23 +148,8 @@
 		}
 	}
 
-	.entry-subtitle {
-		color: #2B4256;
-		font-size: 27px;
-		margin-bottom: 30px;
-	}
-
-	.entry-content {
-		font-size: 21px;
-		padding-bottom: 60px;
-
-		p {
-			margin-bottom: 30px;
-
-			&:last-child {
-				margin-bottom: 0;
-			}
-		}
+	.categorization-wrapper, .custom-attributes-wrapper, .display-date-wrapper, .email-entry-updated-wrapper, .entry-abstract-wrapper, .permissions-wrapper, .pingback-enabled-wrapper, .related-assets-wrapper, .trackback-enabled-wrapper {
+		margin-bottom: 55px;
 	}
 
 	.entry.draft, .entry.pending, .entry.scheduled {
@@ -152,6 +177,11 @@
 		.next {
 			float: right;
 		}
+	}
+
+	.lfr-blogs-cover-image-selector {
+		margin: 0 0 60px;
+		padding-top: 10px;
 	}
 
 	.preview {
@@ -210,6 +240,10 @@
 	#blogsCommentsPanelContainer {
 		border-width: 0;
 	}
+}
+
+.firefox .portlet-blogs fieldset.input-container {
+	display: table-column;
 }
 
 .social-boomarks-options {

@@ -21,6 +21,10 @@ AUI.add(
 		var isValue = Lang.isValue;
 		var trim = Lang.trim;
 
+		var DEFAULTS_FORM_VALIDATOR = A.config.FormValidator;
+
+		var LOCALIZABLE_FIELD_ATTRS = Liferay.FormBuilder.LOCALIZABLE_FIELD_ATTRS;
+
 		var STR_BLANK = '';
 
 		var STR_DASH = '-';
@@ -32,7 +36,7 @@ AUI.add(
 						'<div>';
 
 		var TPL_GEOLOCATION = '<div class="field-labels-inline">' +
-									'<input type="button" value="' + A.Escape.html(Liferay.Language.get('geolocate')) + '" />' +
+									'<img src="' + themeDisplay.getPathThemeImages() + '/common/geolocation.png" title="' + A.Escape.html(Liferay.Language.get('geolocate')) + '" />' +
 								'<div>';
 
 		var TPL_LINK_TO_PAGE = '<div class="lfr-ddm-link-to-page">' +
@@ -46,10 +50,6 @@ AUI.add(
 		var TPL_TEXT_HTML = '<textarea class="form-builder-field-node lfr-ddm-text-html"></textarea>';
 
 		var TPL_WCM_IMAGE = '<div class="lfr-wcm-image"></div>';
-
-		var DEFAULTS_FORM_VALIDATOR = A.config.FormValidator;
-
-		var LOCALIZABLE_FIELD_ATTRS = Liferay.FormBuilder.LOCALIZABLE_FIELD_ATTRS;
 
 		var UNIQUE_FIELD_NAMES_MAP = Liferay.FormBuilder.UNIQUE_FIELD_NAMES_MAP;
 
@@ -151,7 +151,7 @@ AUI.add(
 						portletURL.setParameter('refererPortletName', '167');
 						portletURL.setParameter('struts_action', '/document_selector/view');
 						portletURL.setParameter('tabs1Names', 'documents');
-						portletURL.setPortletId('200');
+						portletURL.setPortletId(Liferay.PortletKeys.DOCUMENT_SELECTOR);
 						portletURL.setWindowState('pop_up');
 
 						Liferay.Util.selectEntity(

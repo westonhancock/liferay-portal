@@ -311,34 +311,6 @@
 		</execute>
 	</command>
 
-	<command name="AssertFieldSetParentDefinitionIframeTitle" priority="5">
-		<var name="kfFieldSetName" value="Field Set Data Definition" />
-		<var name="kfProcessDescription" value="Kaleo Forms Process Description" />
-		<var name="kfProcessName" value="Kaleo Forms Process" />
-
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Kaleo Forms Admin" />
-		</execute>
-
-		<execute macro="KaleoFormsAdmin#addProcess" />
-
-		<execute macro="KaleoFormsAdmin#addProcessDetails">
-			<var name="kfProcessDescription" value="${kfProcessDescription}" />
-			<var name="kfProcessName" value="${kfProcessName}" />
-		</execute>
-
-		<execute macro="KaleoFormsAdmin#next" />
-
-		<execute macro="KaleoFormsAdmin#addFieldSet">
-			<var name="kfFieldSetName" value="${kfFieldSetName}" />
-			<var name="kfProcessName" value="${kfProcessName}" />
-		</execute>
-
-		<execute action="CPDynamicdatalistsDatadefinitionsAdd#assertClick" locator-key1="DETAILS" value1="Details" />
-		<execute action="CPDynamicdatalistsDatadefinitionsAdd#assertClick" locator-key1="DETAILS_PARENT_SELECT_BUTTON" value1="Select" />
-		<execute action="CPDynamicdatalistsDatadefinitionsAdd#assertTextEquals" locator1="//div[contains(@class,'modal-header')]/h3" value1="Field Set" />
-	</command>
-
 	<command name="DeactivateAndActivateWorkflowDefinition" priority="5">
 		<var name="kfProcessDescription" value="Kaleo Forms Process Description" />
 		<var name="kfProcessName" value="Kaleo Forms Process" />
@@ -432,6 +404,21 @@
 
 		<execute macro="KaleoFormsAdmin#next" />
 
+		<execute macro="KaleoFormsAdmin#addWorkflow">
+			<var name="kfProcessName" value="${kfProcessName}" />
+			<var name="workflowDefinitionTitle" value="Workflow Definition Title" />
+		</execute>
+
+		<execute macro="KaleoDesigner#addSourceXMLBasicDefinition" />
+
+		<execute macro="KaleoFormsAdmin#publishWorkflow">
+			<var name="workflowDefinitionTitle" value="Workflow Definition Title" />
+		</execute>
+
+		<execute macro="KaleoFormsAdmin#deactivateWorkflow">
+			<var name="workflowDefinitionTitle" value="Workflow Definition Title" />
+		</execute>
+
 		<execute macro="KaleoFormsAdmin#deactivateWorkflow">
 			<var name="workflowDefinitionTitle" value="Single Approver" />
 		</execute>
@@ -444,7 +431,9 @@
 			<var name="portletName" value="Workflow" />
 		</execute>
 
-		<execute macro="Workflow#deleteWorkflowDefinition" />
+		<execute macro="Workflow#deleteSpecificWorkflowDefinition">
+			<var name="workflowDefinitionTitle" value="Workflow Definition Title" />
+		</execute>
 
 		<execute macro="Page#gotoContentCP">
 			<var name="portletName" value="Kaleo Forms Admin" />
@@ -469,6 +458,14 @@
 		<execute macro="KaleoFormsAdmin#viewNoPublishedWorkflowDefinitions" />
 
 		<execute macro="KaleoFormsAdmin#viewNoUnpublishedWorkflowDefinitions" />
+
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="Workflow" />
+		</execute>
+
+		<execute macro="Workflow#reactivateInactiveWorkflowDefinition">
+			<var name="workflowDefinitionName" value="Single Approver" />
+		</execute>
 	</command>
 
 	<command name="DeleteCreateFormViaDDL" priority="5">
@@ -1521,6 +1518,22 @@
 		<execute macro="KaleoFormsAdmin#viewProcess">
 			<var name="kfProcessName" value="Kaleo Forms Process" />
 		</execute>
+
+		<execute macro="Page#gotoContentCP">
+			<var name="portletName" value="Dynamic Data Lists" />
+		</execute>
+
+		<execute macro="DDLDataDefinition#editCP">
+			<var name="ddlDataDefinitionDescriptionEdit" value="To Do" />
+			<var name="ddlDataDefinitionName" value="Do" />
+			<var name="ddlDataDefinitionNameEdit" value="To Do" />
+		</execute>
+
+		<execute macro="DynamicDataMapping#deleteField">
+			<var name="fieldFieldLabel" value="Boolean" />
+		</execute>
+
+		<execute macro="DDLDataDefinition#saveCP" />
 	</command>
 
 	<command name="EditProcessFieldSetPaginationAndViewSelectedForm" priority="4">

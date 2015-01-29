@@ -133,6 +133,7 @@ create table AssetEntry (
 	classPK LONG,
 	classUuid VARCHAR(75) null,
 	classTypeId LONG,
+	listable BOOLEAN,
 	visible BOOLEAN,
 	startDate DATE null,
 	endDate DATE null,
@@ -172,18 +173,6 @@ create table AssetTag (
 	modifiedDate DATE null,
 	name VARCHAR(75) null,
 	assetCount INTEGER
-);
-
-create table AssetTagProperty (
-	tagPropertyId LONG not null primary key,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	tagId LONG,
-	key_ VARCHAR(75) null,
-	value VARCHAR(255) null
 );
 
 create table AssetTagStats (
@@ -488,6 +477,19 @@ create table DDMStructure (
 	type_ INTEGER
 );
 
+create table DDMStructureLayout (
+	uuid_ VARCHAR(75) null,
+	structureLayoutId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	modifiedDate DATE null,
+	structureVersionId LONG,
+	definition TEXT null
+);
+
 create table DDMStructureLink (
 	structureLinkId LONG not null primary key,
 	classNameId LONG,
@@ -522,7 +524,9 @@ create table DDMTemplate (
 	modifiedDate DATE null,
 	classNameId LONG,
 	classPK LONG,
+	sourceClassNameId LONG,
 	templateKey VARCHAR(75) null,
+	version VARCHAR(75) null,
 	name STRING null,
 	description STRING null,
 	type_ VARCHAR(75) null,
@@ -533,6 +537,21 @@ create table DDMTemplate (
 	smallImage BOOLEAN,
 	smallImageId LONG,
 	smallImageURL VARCHAR(75) null
+);
+
+create table DDMTemplateVersion (
+	templateVersionId LONG not null primary key,
+	groupId LONG,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	templateId LONG,
+	version VARCHAR(75) null,
+	name STRING null,
+	description STRING null,
+	language VARCHAR(75) null,
+	script TEXT null
 );
 
 create table DLContent (
@@ -687,7 +706,7 @@ create table DLFolder (
 	mountPoint BOOLEAN,
 	parentFolderId LONG,
 	treePath STRING null,
-	name VARCHAR(100) null,
+	name VARCHAR(255) null,
 	description STRING null,
 	lastPostDate DATE null,
 	defaultFileEntryTypeId LONG,
@@ -789,7 +808,8 @@ create table Group_ (
 	parentGroupId LONG,
 	liveGroupId LONG,
 	treePath STRING null,
-	name VARCHAR(150) null,
+	groupKey VARCHAR(150) null,
+	name STRING null,
 	description STRING null,
 	type_ INTEGER,
 	typeSettings TEXT null,
@@ -981,7 +1001,7 @@ create table Layout (
 
 create table LayoutBranch (
 	mvccVersion LONG default 0,
-	LayoutBranchId LONG not null primary key,
+	layoutBranchId LONG not null primary key,
 	groupId LONG,
 	companyId LONG,
 	userId LONG,
@@ -2334,57 +2354,6 @@ create table Website (
 	url STRING null,
 	typeId INTEGER,
 	primary_ BOOLEAN
-);
-
-create table WikiNode (
-	uuid_ VARCHAR(75) null,
-	nodeId LONG not null primary key,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	name VARCHAR(75) null,
-	description STRING null,
-	lastPostDate DATE null,
-	status INTEGER,
-	statusByUserId LONG,
-	statusByUserName VARCHAR(75) null,
-	statusDate DATE null
-);
-
-create table WikiPage (
-	uuid_ VARCHAR(75) null,
-	pageId LONG not null primary key,
-	resourcePrimKey LONG,
-	groupId LONG,
-	companyId LONG,
-	userId LONG,
-	userName VARCHAR(75) null,
-	createDate DATE null,
-	modifiedDate DATE null,
-	nodeId LONG,
-	title VARCHAR(255) null,
-	version DOUBLE,
-	minorEdit BOOLEAN,
-	content TEXT null,
-	summary STRING null,
-	format VARCHAR(75) null,
-	head BOOLEAN,
-	parentTitle VARCHAR(255) null,
-	redirectTitle VARCHAR(255) null,
-	status INTEGER,
-	statusByUserId LONG,
-	statusByUserName VARCHAR(75) null,
-	statusDate DATE null
-);
-
-create table WikiPageResource (
-	uuid_ VARCHAR(75) null,
-	resourcePrimKey LONG not null primary key,
-	nodeId LONG,
-	title VARCHAR(255) null
 );
 
 create table WorkflowDefinitionLink (

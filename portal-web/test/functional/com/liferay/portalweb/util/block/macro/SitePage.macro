@@ -183,6 +183,8 @@
 	<command name="changePageTypeLayoutCP">
 		<var name="key_pageType" value="${pageType}" />
 
+		<execute action="CPSitepages#click" locator-key1="PAGE_TREE_PAGE_LINK_2" />
+
 		<execute action="CPSitepagesAddpage#select" locator-key1="PAGE_TYPE_LAYOUT" value1="${pageType}" />
 
 		<if>
@@ -358,6 +360,15 @@
 		<var name="key_sitePageName" value="${sitePageName}" />
 
 		<execute action="CPSitepages#assertClick" locator-key1="PAGE_TREE_PAGE_SPECIFIC_PAGE" value1="${sitePageName}" />
+	</command>
+
+	<command name="openPageTree">
+		<while>
+			<condition action="CPSitepages#isVisible" locator-key1="PAGE_TREE_PLUS" />
+			<then>
+				<execute action="CPSitepages#click" locator-key1="PAGE_TREE_PLUS" />
+			</then>
+		</while>
 	</command>
 
 	<command name="pageLockCheckPG">
@@ -550,8 +561,6 @@
 	</command>
 
 	<command name="viewLoadMoreResultsPages">
-		<var name="key_pageName" value="${pageName}" />
-
 		<if>
 			<equals arg1="${siteChildPages}" arg2="false" />
 			<then>

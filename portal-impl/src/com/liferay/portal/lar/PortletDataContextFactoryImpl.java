@@ -67,6 +67,7 @@ public class PortletDataContextFactoryImpl
 
 		clonePortletDataContext.setParameterMap(
 			portletDataContext.getParameterMap());
+		clonePortletDataContext.setPortletId(portletDataContext.getPortletId());
 		clonePortletDataContext.setScopeGroupId(
 			portletDataContext.getScopeGroupId());
 		clonePortletDataContext.setSourceCompanyId(
@@ -122,8 +123,6 @@ public class PortletDataContextFactoryImpl
 
 		portletDataContext.setNewLayouts(new ArrayList<Layout>());
 		portletDataContext.setParameterMap(parameterMap);
-		portletDataContext.setPortetDataContextListener(
-			new PortletDataContextListenerImpl(portletDataContext));
 		portletDataContext.setUserIdStrategy(userIdStrategy);
 		portletDataContext.setZipReader(zipReader);
 

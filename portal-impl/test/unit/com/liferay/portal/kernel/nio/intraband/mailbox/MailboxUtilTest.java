@@ -261,7 +261,8 @@ public class MailboxUtilTest {
 
 		@Around(
 			"execution(public long com.liferay.portal.kernel.nio.intraband." +
-				"mailbox.MailboxUtil$ReceiptStub.getReceipt())")
+				"mailbox.MailboxUtil$ReceiptStub.getReceipt())"
+		)
 		public Object getReceipt(ProceedingJoinPoint proceedingJoinPoint)
 			throws Throwable {
 
@@ -284,7 +285,11 @@ public class MailboxUtilTest {
 
 		Constructor<?> constructor = clazz.getConstructor(long.class);
 
-		return constructor.newInstance(0);
+		Object object = constructor.newInstance(0);
+
+		Assert.assertEquals(0, object.hashCode());
+
+		return object;
 	}
 
 	private static class RecorderUncaughtExceptionHandler

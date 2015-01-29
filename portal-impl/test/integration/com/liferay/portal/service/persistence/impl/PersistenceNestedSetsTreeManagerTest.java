@@ -230,11 +230,10 @@ public class PersistenceNestedSetsTreeManagerTest {
 	public void testError() {
 		_sessionFactoryInvocationHandler.setFailOpenSession(true);
 
-		CaptureAppender captureAppender =
-			Log4JLoggerTestUtil.configureLog4JLogger(
-				BasePersistenceImpl.class.getName(), Level.OFF);
+		try (CaptureAppender captureAppender =
+				Log4JLoggerTestUtil.configureLog4JLogger(
+					BasePersistenceImpl.class.getName(), Level.OFF)) {
 
-		try {
 			try {
 				_nestedSetsTreeManager.doCountAncestors(0, 0, 0);
 
@@ -327,8 +326,6 @@ public class PersistenceNestedSetsTreeManagerTest {
 			}
 		}
 		finally {
-			captureAppender.close();
-
 			_sessionFactoryInvocationHandler.setFailOpenSession(false);
 		}
 	}
@@ -624,17 +621,15 @@ public class PersistenceNestedSetsTreeManagerTest {
 	protected void assertGetAncestors(
 		AssetCategory assetCategory, AssetCategory... ancestorAssetCategories) {
 
-		List<AssetCategory> expectedAssetCategories =
-			new ArrayList<AssetCategory>(
-				Arrays.asList(ancestorAssetCategories));
+		List<AssetCategory> expectedAssetCategories = new ArrayList<>(
+			Arrays.asList(ancestorAssetCategories));
 
 		expectedAssetCategories.add(assetCategory);
 
 		Collections.sort(expectedAssetCategories);
 
-		List<AssetCategory> actualAssetCategories =
-			new ArrayList<AssetCategory>(
-				_nestedSetsTreeManager.getAncestors(assetCategory));
+		List<AssetCategory> actualAssetCategories = new ArrayList<>(
+			_nestedSetsTreeManager.getAncestors(assetCategory));
 
 		Collections.sort(actualAssetCategories);
 
@@ -644,16 +639,15 @@ public class PersistenceNestedSetsTreeManagerTest {
 	protected void assertGetDescendants(
 		AssetCategory assetCategory, AssetCategory... childAssetCategories) {
 
-		List<AssetCategory> expectedAssetCategories =
-			new ArrayList<AssetCategory>(Arrays.asList(childAssetCategories));
+		List<AssetCategory> expectedAssetCategories = new ArrayList<>(
+			Arrays.asList(childAssetCategories));
 
 		expectedAssetCategories.add(assetCategory);
 
 		Collections.sort(expectedAssetCategories);
 
-		List<AssetCategory> actualAssetCategories =
-			new ArrayList<AssetCategory>(
-				_nestedSetsTreeManager.getDescendants(assetCategory));
+		List<AssetCategory> actualAssetCategories = new ArrayList<>(
+			_nestedSetsTreeManager.getDescendants(assetCategory));
 
 		Collections.sort(actualAssetCategories);
 
@@ -732,7 +726,7 @@ public class PersistenceNestedSetsTreeManagerTest {
 		}
 
 		private boolean _failOpenSession;
-		private Object _target;
+		private final Object _target;
 
 	}
 

@@ -101,6 +101,41 @@
 
 				${selenium}.sendLogger(${lineId} + "${lineNumber}", "pass");
 			</#if>
+		<#elseif element.attributeValue("function")??>
+			<#assign function = element.attributeValue("function")>
+
+			<#if testCaseName??>
+				selenium
+			<#else>
+				liferaySelenium
+			</#if>
+
+			.pauseLoggerCheck();
+
+			<#if function?contains("#is")>
+				try {
+			</#if>
+
+			<#assign functionElement = element>
+
+			<#include "function_log_element.ftl">
+
+			${selenium}.saveScreenshotBeforeAction(false);
+
+			<#include "function_element.ftl">
+
+			<#if function?contains("#is")>
+				}
+				finally {
+					<#assign lineNumber = element.attributeValue("line-number")>
+
+					${selenium}.sendLogger(${lineId} + "${lineNumber}", "pass");
+				}
+			<#else>
+				<#assign lineNumber = element.attributeValue("line-number")>
+
+				${selenium}.sendLogger(${lineId} + "${lineNumber}", "pass");
+			</#if>
 		<#elseif element.attributeValue("macro")??>
 			<#assign macroElement = element>
 

@@ -218,7 +218,6 @@
 		</execute>
 
 		<execute macro="SitePage#viewLoadMoreResultsPages">
-			<var name="pageName" value="Public Pages" />
 			<var name="siteChildPages" value="false" />
 		</execute>
 
@@ -235,7 +234,6 @@
 		</execute>
 
 		<execute macro="SitePage#viewLoadMoreResultsPages">
-			<var name="pageName" value="Welcome" />
 			<var name="siteChildPages" value="true" />
 		</execute>
 	</command>
@@ -1249,7 +1247,7 @@
 		<execute action="Home#assertLocation" value1="http://localhost:8080/web/page-type-test-site-name/embedded-page" />
 
 		<execute action="PGEmbedded#selectFrame" locator-key1="EMBEDDED_IFRAME" />
-		<execute action="PGEmbedded#assertTextEquals" locator-key1="EMBEDDED_LIFERAY_COPYRIGHT_TEXT" value1="© 2014 LIFERAY INC. ALL RIGHTS RESERVED" />
+		<execute action="PGEmbedded#assertTextEquals" locator-key1="EMBEDDED_LIFERAY_COPYRIGHT_TEXT" value1="© 2015 LIFERAY INC. ALL RIGHTS RESERVED" />
 		<execute action="PGEmbedded#selectFrame" value1="relative=top" />
 
 		<execute macro="Page#gotoPG">

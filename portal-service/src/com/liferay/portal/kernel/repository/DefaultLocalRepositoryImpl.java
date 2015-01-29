@@ -162,12 +162,12 @@ public class DefaultLocalRepositoryImpl implements LocalRepository {
 
 	@Override
 	public List<FileEntry> getRepositoryFileEntries(
-			long rootFolderId, int start, int end,
+			long userId, long rootFolderId, int start, int end,
 			OrderByComparator<FileEntry> obc)
 		throws PortalException {
 
 		return _repository.getRepositoryFileEntries(
-			0, rootFolderId, start, end, obc);
+			userId, rootFolderId, start, end, obc);
 	}
 
 	@Override
@@ -208,6 +208,10 @@ public class DefaultLocalRepositoryImpl implements LocalRepository {
 			userId, fileEntryId, version, serviceContext);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0
+	 */
+	@Deprecated
 	@Override
 	public void updateAsset(
 		long userId, FileEntry fileEntry, FileVersion fileVersion,

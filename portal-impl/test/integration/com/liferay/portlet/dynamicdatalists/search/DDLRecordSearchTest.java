@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchEngine;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.test.AggregateTestRule;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.test.DeleteAfterTestRun;
@@ -92,6 +93,95 @@ public class DDLRecordSearchTest {
 		assertSearch("Bloggs", 2);
 	}
 
+	@Test
+	public void testPunctuationInExactPhrase() throws Exception {
+		Assume.assumeTrue(isExactPhraseQueryImplementedForSearchEngine());
+
+		addRecord("Joe? Bloggs!");
+		addRecord("Joe! Bloggs?");
+		addRecord("Joe Bloggs");
+		addRecord("Bloggs");
+
+		assertSearch("\"Joe? Bloggs!\"", 3);
+		assertSearch("\"Joe! Bloggs?\"", 3);
+	}
+
+	@Test
+	public void testQuestionMarksVersusStopwords1() throws Exception {
+		Assume.assumeTrue(isExactPhraseQueryImplementedForSearchEngine());
+
+		addRecord(RandomTestUtil.randomString());
+		addRecord("how ? create ? coupon");
+
+		assertSearch("\"how ? create ? coupon\"", 1);
+		assertSearch("\"how to create a coupon\"", 0);
+		assertSearch("\"how with create the coupon\"", 0);
+	}
+
+	@Test
+	public void testQuestionMarksVersusStopwords2() throws Exception {
+		Assume.assumeTrue(isExactPhraseQueryImplementedForSearchEngine());
+
+		addRecord(RandomTestUtil.randomString());
+		addRecord("how with create the coupon");
+
+		assertSearch("\"how ? create ? coupon\"", 0);
+		assertSearch("\"how to create a coupon\"", 1);
+		assertSearch("\"how with create the coupon\"", 1);
+	}
+
+	@Test
+	public void testQuestionMarksVersusStopwords3() throws Exception {
+		Assume.assumeTrue(isExactPhraseQueryImplementedForSearchEngine());
+
+		addRecord(RandomTestUtil.randomString());
+		addRecord("how to create a coupon");
+
+		assertSearch("\"how ? create ? coupon\"", 0);
+		assertSearch("\"how to create a coupon\"", 1);
+		assertSearch("\"how with create the coupon\"", 1);
+	}
+
+	@Test
+	public void testQuestionMarksVersusStopwords4() throws Exception {
+		Assume.assumeTrue(isExactPhraseQueryImplementedForSearchEngine());
+
+		addRecord(RandomTestUtil.randomString());
+		addRecord("how ! create ! coupon");
+
+		assertSearch("\"how ? create ? coupon\"", 1);
+		assertSearch("\"how to create a coupon\"", 0);
+		assertSearch("\"how with create the coupon\"", 0);
+	}
+
+	@Test
+	public void testStopwords() throws Exception {
+		addRecord(RandomTestUtil.randomString());
+		addRecord(RandomTestUtil.randomString(), "Another description example");
+
+		assertSearch("Another The Example", 1);
+	}
+
+	@Test
+	public void testStopwordsInExactPhrase() throws Exception {
+		Assume.assumeTrue(isExactPhraseQueryImplementedForSearchEngine());
+
+		addRecord("how to create a coupon");
+		addRecord("Joe Of Bloggs");
+		addRecord("Joe Bloggs");
+		addRecord("Bloggs");
+
+		assertSearch("\"how to create a coupon\"", 1);
+		assertSearch("\"how with create the coupon\"", 1);
+		assertSearch("\"how Liferay create Liferay coupon\"", 0);
+		assertSearch("\"how create coupon\"", 0);
+		assertSearch("\"Joe Of Bloggs\"", 1);
+		assertSearch("\"Joe The Bloggs\"", 1);
+		assertSearch("\"Bloggs A\"", 3);
+		assertSearch("\"Of Bloggs\"", 3);
+		assertSearch("\"The Bloggs\"", 3);
+	}
+
 	protected static SearchContext getSearchContext(
 			Group group, DDLRecordSet recordSet)
 		throws Exception {
@@ -103,6 +193,10 @@ public class DDLRecordSearchTest {
 		searchContext.setAttribute("status", WorkflowConstants.STATUS_ANY);
 
 		return searchContext;
+	}
+
+	protected void addRecord(String name) throws Exception {
+		addRecord(name, RandomTestUtil.randomString());
 	}
 
 	protected void addRecord(String name, String description) throws Exception {
@@ -146,7 +240,10 @@ public class DDLRecordSearchTest {
 
 		DDMStructure ddmStructure = recordSet.getDDMStructure();
 
-		return DDLRecordTestUtil.createDDMFormValues(ddmStructure.getDDMForm());
+		return DDLRecordTestUtil.createDDMFormValues(
+			ddmStructure.getDDMForm(),
+			DDLRecordTestUtil.createAvailableLocales(LocaleUtil.US),
+			LocaleUtil.US);
 	}
 
 	protected DDMFormFieldValue createLocalizedTextDDMFormFieldValue(

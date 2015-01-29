@@ -537,7 +537,13 @@ public interface Portal {
 	public long[] getCurrentAndAncestorSiteGroupIds(long groupId)
 		throws PortalException;
 
+	public long[] getCurrentAndAncestorSiteGroupIds(long[] groupIds)
+		throws PortalException;
+
 	public List<Group> getCurrentAndAncestorSiteGroups(long groupId)
+		throws PortalException;
+
+	public List<Group> getCurrentAndAncestorSiteGroups(long[] groupIds)
 		throws PortalException;
 
 	public String getCurrentCompleteURL(HttpServletRequest request);
@@ -1029,6 +1035,9 @@ public interface Portal {
 	public String getPortletTitle(PortletResponse portletResponse);
 
 	public String getPortletTitle(String portletId, Locale locale);
+
+	public String getPortletTitle(
+		String portletId, ResourceBundle resourceBundle);
 
 	public String getPortletTitle(String portletId, String languageId);
 

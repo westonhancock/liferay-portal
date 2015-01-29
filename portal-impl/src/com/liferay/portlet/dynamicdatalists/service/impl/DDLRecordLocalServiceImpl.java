@@ -175,7 +175,8 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 	@Override
 	@SystemEvent(
 		action = SystemEventConstants.ACTION_SKIP,
-		type = SystemEventConstants.TYPE_DELETE)
+		type = SystemEventConstants.TYPE_DELETE
+	)
 	public DDLRecord deleteRecord(DDLRecord record) throws PortalException {
 
 		// Record
@@ -259,32 +260,6 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 
 		return ddlRecordFinder.findByC_S_S(
 			companyId, status, scope, start, end, orderByComparator);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getCompanyRecords(long, int,
-	 *             int, int, int, OrderByComparator)}
-	 */
-	@Deprecated
-	@Override
-	public List<DDLRecord> getCompanyRecords(
-		long companyId, int scope, int start, int end,
-		OrderByComparator<DDLRecord> orderByComparator) {
-
-		return getCompanyRecords(
-			companyId, WorkflowConstants.STATUS_ANY, scope, start, end,
-			orderByComparator);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getCompanyRecordsCount(long,
-	 *             int, int)}
-	 */
-	@Deprecated
-	@Override
-	public int getCompanyRecordsCount(long companyId, int scope) {
-		return getCompanyRecordsCount(
-			companyId, WorkflowConstants.STATUS_ANY, scope);
 	}
 
 	@Override
@@ -463,8 +438,7 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 
 			List<DDLRecord> ddlRecords = DDLUtil.getRecords(hits);
 
-			return new BaseModelSearchResult<DDLRecord>(
-				ddlRecords, hits.getLength());
+			return new BaseModelSearchResult<>(ddlRecords, hits.getLength());
 		}
 		catch (Exception e) {
 			throw new SystemException(e);
@@ -712,6 +686,14 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 				ddlRecordPersistence.update(record);
 			}
 		}
+
+		// Asset
+
+		Locale locale = serviceContext.getLocale();
+
+		updateAsset(
+			userId, record, recordVersion, serviceContext.getAssetCategoryIds(),
+			serviceContext.getAssetTagNames(), locale);
 
 		return record;
 	}

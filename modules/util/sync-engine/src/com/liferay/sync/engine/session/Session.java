@@ -19,27 +19,39 @@ import com.btr.proxy.search.ProxySearch;
 import com.liferay.sync.engine.documentlibrary.handler.Handler;
 import com.liferay.sync.engine.util.PropsValues;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 import java.net.ProxySelector;
 import java.net.URL;
 
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.output.CountingOutputStream;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
@@ -57,6 +69,7 @@ import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.SystemDefaultRoutePlanner;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
@@ -68,6 +81,24 @@ import org.slf4j.LoggerFactory;
  * @author Dennis Ju
  */
 public class Session {
+
+	public static HttpRoutePlanner getHttpRoutePlanner() {
+		if (_httpRoutePlanner != null) {
+			return _httpRoutePlanner;
+		}
+
+		ProxySearch proxySearch = ProxySearch.getDefaultProxySearch();
+
+		ProxySelector proxySelector = proxySearch.getProxySelector();
+
+		if (proxySelector == null) {
+			proxySelector = ProxySelector.getDefault();
+		}
+
+		_httpRoutePlanner = new SystemDefaultRoutePlanner(proxySelector);
+
+		return _httpRoutePlanner;
+	}
 
 	public Session(
 		URL url, String login, String password, boolean trustSelfSigned,
@@ -98,7 +129,7 @@ public class Session {
 
 		httpClientBuilder.setMaxConnPerRoute(maxConnections);
 		httpClientBuilder.setMaxConnTotal(maxConnections);
-		httpClientBuilder.setRoutePlanner(_getHttpRoutePlanner());
+		httpClientBuilder.setRoutePlanner(getHttpRoutePlanner());
 
 		if (trustSelfSigned) {
 			try {
@@ -125,6 +156,24 @@ public class Session {
 		_httpHost = new HttpHost(
 			url.getHost(), url.getPort(), url.getProtocol());
 		_token = null;
+
+		Runnable runnable = new Runnable() {
+
+			@Override
+			public void run() {
+				_downloadRate = _downloadedBytes.get();
+
+				_downloadedBytes.set(0);
+
+				_uploadRate = _uploadedBytes.get();
+
+				_uploadedBytes.set(0);
+			}
+
+		};
+
+		_scheduledExecutorService.scheduleAtFixedRate(
+			runnable, 0, 1000, TimeUnit.MILLISECONDS);
 	}
 
 	public HttpResponse execute(HttpRequest httpRequest) throws Exception {
@@ -260,8 +309,24 @@ public class Session {
 		return _basicHttpContext;
 	}
 
+	public int getDownloadRate() {
+		return _downloadRate;
+	}
+
 	public ExecutorService getExecutorService() {
 		return _executorService;
+	}
+
+	public int getUploadRate() {
+		return _uploadRate;
+	}
+
+	public void incrementDownloadedBytes(int bytes) {
+		_downloadedBytes.getAndAdd(bytes);
+	}
+
+	public void incrementUploadedBytes(int bytes) {
+		_uploadedBytes.getAndAdd(bytes);
 	}
 
 	public void setToken(String token) {
@@ -272,8 +337,28 @@ public class Session {
 			HttpPost httpPost, Map<String, Object> parameters)
 		throws Exception {
 
+		HttpEntity httpEntity = _getEntity(parameters);
+
+		httpPost.setEntity(httpEntity);
+	}
+
+	private BasicAuthCache _getBasicAuthCache() {
+		BasicAuthCache basicAuthCache = new BasicAuthCache();
+
+		BasicScheme basicScheme = new BasicScheme();
+
+		basicAuthCache.put(_httpHost, basicScheme);
+
+		return basicAuthCache;
+	}
+
+	private HttpEntity _getEntity(Map<String, Object> parameters)
+		throws Exception {
+
 		Path deltaFilePath = (Path)parameters.get("deltaFilePath");
 		Path filePath = (Path)parameters.get("filePath");
+		String zipFileIds = (String)parameters.get("zipFileIds");
+		Path zipFilePath = (Path)parameters.get("zipFilePath");
 
 		MultipartEntityBuilder multipartEntityBuilder =
 			_getMultipartEntityBuilder(parameters);
@@ -292,18 +377,18 @@ public class Session {
 					filePath, (String)parameters.get("mimeType"),
 					(String)parameters.get("title")));
 		}
+		else if (zipFileIds != null) {
+			return _getURLEncodedFormEntity(parameters);
+		}
+		else if (zipFilePath != null) {
+			multipartEntityBuilder.addPart(
+				"zipFile",
+				_getFileBody(
+					zipFilePath, "application/zip",
+					String.valueOf(zipFilePath.getFileName())));
+		}
 
-		httpPost.setEntity(multipartEntityBuilder.build());
-	}
-
-	private BasicAuthCache _getBasicAuthCache() {
-		BasicAuthCache basicAuthCache = new BasicAuthCache();
-
-		BasicScheme basicScheme = new BasicScheme();
-
-		basicAuthCache.put(_httpHost, basicScheme);
-
-		return basicAuthCache;
+		return multipartEntityBuilder.build();
 	}
 
 	private ContentBody _getFileBody(
@@ -311,25 +396,25 @@ public class Session {
 		throws Exception {
 
 		return new FileBody(
-			filePath.toFile(), ContentType.create(mimeType), fileName);
-	}
+			filePath.toFile(), ContentType.create(mimeType), fileName) {
 
-	private HttpRoutePlanner _getHttpRoutePlanner() {
-		if (_httpRoutePlanner != null) {
-			return _httpRoutePlanner;
-		}
+			@Override
+			public void writeTo(OutputStream out) throws IOException {
+				CountingOutputStream output = new CountingOutputStream(out) {
 
-		ProxySearch proxySearch = ProxySearch.getDefaultProxySearch();
+					@Override
+					protected void beforeWrite(int n) {
+						incrementUploadedBytes(n);
 
-		ProxySelector proxySelector = proxySearch.getProxySelector();
+						super.beforeWrite(n);
+					}
 
-		if (proxySelector == null) {
-			proxySelector = ProxySelector.getDefault();
-		}
+				};
 
-		_httpRoutePlanner = new SystemDefaultRoutePlanner(proxySelector);
+				super.writeTo(output);
+			}
 
-		return _httpRoutePlanner;
+		};
 	}
 
 	private MultipartEntityBuilder _getMultipartEntityBuilder(
@@ -358,17 +443,38 @@ public class Session {
 				Charset.forName("UTF-8")));
 	}
 
+	private HttpEntity _getURLEncodedFormEntity(Map<String, Object> parameters)
+		throws Exception {
+
+		List<NameValuePair> nameValuePairs = new ArrayList<>();
+
+		for (Map.Entry<String, Object> entry : parameters.entrySet()) {
+			NameValuePair nameValuePair = new BasicNameValuePair(
+				entry.getKey(), String.valueOf(entry.getValue()));
+
+			nameValuePairs.add(nameValuePair);
+		}
+
+		return new UrlEncodedFormEntity(nameValuePairs);
+	}
+
 	private static final Logger _logger = LoggerFactory.getLogger(
 		Session.class);
 
 	private static HttpRoutePlanner _httpRoutePlanner;
+	private static final ScheduledExecutorService _scheduledExecutorService =
+		Executors.newSingleThreadScheduledExecutor();
 
 	private BasicHttpContext _basicHttpContext;
+	private final AtomicInteger _downloadedBytes = new AtomicInteger(0);
+	private volatile int _downloadRate;
 	private final ExecutorService _executorService;
 	private final HttpClient _httpClient;
 	private final HttpHost _httpHost;
-	private final Set<String> _ignoredParameterKeys = new HashSet<String>(
+	private final Set<String> _ignoredParameterKeys = new HashSet<>(
 		Arrays.asList("filePath", "syncFile", "syncSite", "uiEvent"));
 	private String _token;
+	private final AtomicInteger _uploadedBytes = new AtomicInteger(0);
+	private volatile int _uploadRate;
 
 }

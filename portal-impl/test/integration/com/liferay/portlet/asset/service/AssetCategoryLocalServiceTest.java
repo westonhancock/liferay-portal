@@ -64,12 +64,12 @@ public class AssetCategoryLocalServiceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		IndexerRegistryUtil.register(BlogsEntry.class.getName(), _blogsIndexer);
+		IndexerRegistryUtil.register(_blogsIndexer);
 	}
 
 	@Test
 	public void testDeleteCategory() throws Exception {
-		Map<Locale, String> titleMap = new HashMap<Locale, String>();
+		Map<Locale, String> titleMap = new HashMap<>();
 
 		titleMap.put(LocaleUtil.US, RandomTestUtil.randomString());
 
@@ -98,8 +98,7 @@ public class AssetCategoryLocalServiceTest {
 		assetTestIndexer.setExpectedValues(
 			BlogsEntry.class.getName(), blogsEntry.getEntryId());
 
-		IndexerRegistryUtil.register(
-			BlogsEntry.class.getName(), assetTestIndexer);
+		IndexerRegistryUtil.register(assetTestIndexer);
 
 		AssetCategoryLocalServiceUtil.deleteCategory(assetCategory, true);
 	}

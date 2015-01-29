@@ -256,6 +256,20 @@ public interface DDMTemplateModel extends AttachedModel, BaseModel<DDMTemplate>,
 	public void setClassPK(long classPK);
 
 	/**
+	 * Returns the source class name ID of this d d m template.
+	 *
+	 * @return the source class name ID of this d d m template
+	 */
+	public long getSourceClassNameId();
+
+	/**
+	 * Sets the source class name ID of this d d m template.
+	 *
+	 * @param sourceClassNameId the source class name ID of this d d m template
+	 */
+	public void setSourceClassNameId(long sourceClassNameId);
+
+	/**
 	 * Returns the template key of this d d m template.
 	 *
 	 * @return the template key of this d d m template
@@ -268,6 +282,21 @@ public interface DDMTemplateModel extends AttachedModel, BaseModel<DDMTemplate>,
 	 * @param templateKey the template key of this d d m template
 	 */
 	public void setTemplateKey(String templateKey);
+
+	/**
+	 * Returns the version of this d d m template.
+	 *
+	 * @return the version of this d d m template
+	 */
+	@AutoEscape
+	public String getVersion();
+
+	/**
+	 * Sets the version of this d d m template.
+	 *
+	 * @param version the version of this d d m template
+	 */
+	public void setVersion(String version);
 
 	/**
 	 * Returns the name of this d d m template.

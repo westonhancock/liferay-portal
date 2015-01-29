@@ -711,10 +711,22 @@ public class PortalUtil {
 		return getPortal().getCurrentAndAncestorSiteGroupIds(groupId);
 	}
 
+	public static long[] getCurrentAndAncestorSiteGroupIds(long[] groupIds)
+		throws PortalException {
+
+		return getPortal().getCurrentAndAncestorSiteGroupIds(groupIds);
+	}
+
 	public static List<Group> getCurrentAndAncestorSiteGroups(long groupId)
 		throws PortalException {
 
 		return getPortal().getCurrentAndAncestorSiteGroups(groupId);
+	}
+
+	public static List<Group> getCurrentAndAncestorSiteGroups(long[] groupIds)
+		throws PortalException {
+
+		return getPortal().getCurrentAndAncestorSiteGroups(groupIds);
 	}
 
 	public static String getCurrentCompleteURL(HttpServletRequest request) {
@@ -1632,6 +1644,12 @@ public class PortalUtil {
 		return getPortal().getPortletTitle(portletId, locale);
 	}
 
+	public static String getPortletTitle(
+		String portletId, ResourceBundle resourceBundle) {
+
+		return getPortal().getPortletTitle(portletId, resourceBundle);
+	}
+
 	public static String getPortletTitle(String portletId, String languageId) {
 		return getPortal().getPortletTitle(portletId, languageId);
 	}
@@ -2392,7 +2410,7 @@ public class PortalUtil {
 
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
-	 *             #removePortalInetSocketAddressEventListener(
+	 *             #removePortalEventListener(
 	 *             PortalInetSocketAddressEventListener)}
 	 */
 	@Deprecated

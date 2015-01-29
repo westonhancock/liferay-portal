@@ -142,6 +142,11 @@
 </tr>
 <!--PAGE_TREE-->
 <tr>
+	<td>PAGE_TREE_PLUS</td>
+	<td>//div[contains(@class,'tree-collapsed')]/span[contains(@class,'tree-hitarea')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PAGE_TREE_ROOT_ARROW_PLUS</td>
 	<td>//li[contains(@id,'layoutsTree_layoutId_0_')]/div[contains(@class,'tree-collapse')]/span[contains(@class,'tree-hitarea')]</td>
 	<td></td>
@@ -243,7 +248,7 @@
 </tr>
 <tr>
 	<td>PAGE_TREE_LOAD_MORE_RESULTS_LINK</td>
-	<td>//ul/li/div[contains(.,'${key_pageName}')]/..//a[@class='tree-node-paginator']</td>
+	<td>//a[@class='tree-node-paginator']</td>
 	<td></td>
 </tr>
 <tr>

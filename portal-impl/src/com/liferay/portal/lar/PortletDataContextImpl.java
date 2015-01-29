@@ -26,7 +26,6 @@ import com.liferay.portal.kernel.lar.ExportImportClassedModelUtil;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.ManifestSummary;
 import com.liferay.portal.kernel.lar.PortletDataContext;
-import com.liferay.portal.kernel.lar.PortletDataContextListener;
 import com.liferay.portal.kernel.lar.PortletDataHandlerControl;
 import com.liferay.portal.kernel.lar.PortletDataHandlerKeys;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
@@ -63,6 +62,7 @@ import com.liferay.portal.model.GroupConstants;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Lock;
 import com.liferay.portal.model.Portlet;
+import com.liferay.portal.model.PortletConstants;
 import com.liferay.portal.model.PortletModel;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.ResourcedModel;
@@ -159,14 +159,13 @@ public class PortletDataContextImpl implements PortletDataContext {
 			return;
 		}
 
-		Map<Integer, List<AssetLink>> assetLinksMap =
-			new HashMap<Integer, List<AssetLink>>();
+		Map<Integer, List<AssetLink>> assetLinksMap = new HashMap<>();
 
 		for (AssetLink assetLink : directAssetLinks) {
 			List<AssetLink> assetLinks = assetLinksMap.get(assetLink.getType());
 
 			if (assetLinks == null) {
-				assetLinks = new ArrayList<AssetLink>();
+				assetLinks = new ArrayList<>();
 
 				assetLinksMap.put(assetLink.getType(), assetLinks);
 			}
@@ -379,7 +378,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 			return;
 		}
 
-		List<KeyValuePair> permissions = new ArrayList<KeyValuePair>();
+		List<KeyValuePair> permissions = new ArrayList<>();
 
 		for (Map.Entry<Long, Set<String>> entry :
 				roleIdsToActionIds.entrySet()) {
@@ -567,10 +566,6 @@ public class PortletDataContextImpl implements PortletDataContext {
 			return;
 		}
 
-		if (_portletDataContextListener != null) {
-			_portletDataContextListener.onAddZipEntry(path);
-		}
-
 		try {
 			ZipWriter zipWriter = getZipWriter();
 
@@ -585,10 +580,6 @@ public class PortletDataContextImpl implements PortletDataContext {
 	public void addZipEntry(String path, InputStream is) {
 		if (isPathProcessed(path)) {
 			return;
-		}
-
-		if (_portletDataContextListener != null) {
-			_portletDataContextListener.onAddZipEntry(path);
 		}
 
 		try {
@@ -610,10 +601,6 @@ public class PortletDataContextImpl implements PortletDataContext {
 	public void addZipEntry(String path, String s) {
 		if (isPathProcessed(path)) {
 			return;
-		}
-
-		if (_portletDataContextListener != null) {
-			_portletDataContextListener.onAddZipEntry(path);
 		}
 
 		try {
@@ -1010,7 +997,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 		Map<?, ?> map = _newPrimaryKeysMaps.get(className);
 
 		if (map == null) {
-			map = new HashMap<Object, Object>();
+			map = new HashMap<>();
 
 			_newPrimaryKeysMaps.put(className, map);
 		}
@@ -1040,6 +1027,11 @@ public class PortletDataContextImpl implements PortletDataContext {
 	@Override
 	public long getPlid() {
 		return _plid;
+	}
+
+	@Override
+	public String getPortletId() {
+		return _portletId;
 	}
 
 	/**
@@ -1214,6 +1206,11 @@ public class PortletDataContextImpl implements PortletDataContext {
 		return ExportImportPathUtil.getRootPath(this);
 	}
 
+	@Override
+	public String getRootPortletId() {
+		return _rootPortletId;
+	}
+
 	/**
 	 * @deprecated As of 7.0.0, with no direct replacement
 	 */
@@ -1325,10 +1322,6 @@ public class PortletDataContextImpl implements PortletDataContext {
 			return null;
 		}
 
-		if (_portletDataContextListener != null) {
-			_portletDataContextListener.onGetZipEntry(path);
-		}
-
 		return getZipReader().getEntryAsByteArray(path);
 	}
 
@@ -1336,10 +1329,6 @@ public class PortletDataContextImpl implements PortletDataContext {
 	public InputStream getZipEntryAsInputStream(String path) {
 		if (!Validator.isFilePath(path, false)) {
 			return null;
-		}
-
-		if (_portletDataContextListener != null) {
-			_portletDataContextListener.onGetZipEntry(path);
 		}
 
 		return getZipReader().getEntryAsInputStream(path);
@@ -1368,10 +1357,6 @@ public class PortletDataContextImpl implements PortletDataContext {
 	public String getZipEntryAsString(String path) {
 		if (!Validator.isFilePath(path, false)) {
 			return null;
-		}
-
-		if (_portletDataContextListener != null) {
-			_portletDataContextListener.onGetZipEntry(path);
 		}
 
 		return getZipReader().getEntryAsString(path);
@@ -1573,7 +1558,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 			return;
 		}
 
-		Map<Long, String[]> roleIdsToActionIds = new HashMap<Long, String[]>();
+		Map<Long, String[]> roleIdsToActionIds = new HashMap<>();
 
 		for (KeyValuePair permission : permissions) {
 			String roleName = permission.getKey();
@@ -1845,11 +1830,26 @@ public class PortletDataContextImpl implements PortletDataContext {
 		_plid = plid;
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public void setPortetDataContextListener(
-		PortletDataContextListener portletDataContextListener) {
+		com.liferay.portal.kernel.lar.PortletDataContextListener
+			portletDataContextListener) {
+	}
 
-		_portletDataContextListener = portletDataContextListener;
+	@Override
+	public void setPortletId(String portletId) {
+		_portletId = portletId;
+
+		if (Validator.isNotNull(portletId)) {
+			_rootPortletId = PortletConstants.getRootPortletId(portletId);
+		}
+		else {
+			_rootPortletId = null;
+		}
 	}
 
 	@Override
@@ -2269,7 +2269,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 	protected List<Element> getReferenceDataElements(
 		List<Element> referenceElements, Class<?> clazz) {
 
-		List<Element> referenceDataElements = new ArrayList<Element>();
+		List<Element> referenceDataElements = new ArrayList<>();
 
 		for (Element referenceElement : referenceElements) {
 			Element referenceDataElement = null;
@@ -2433,41 +2433,38 @@ public class PortletDataContextImpl implements PortletDataContext {
 	private static final Log _log = LogFactoryUtil.getLog(
 		PortletDataContextImpl.class);
 
-	private final Map<String, long[]> _assetCategoryIdsMap =
-		new HashMap<String, long[]>();
-	private final Map<String, List<AssetLink>> _assetLinksMap =
-		new HashMap<String, List<AssetLink>>();
-	private final Map<String, String[]> _assetTagNamesMap =
-		new HashMap<String, String[]>();
+	private final Map<String, long[]> _assetCategoryIdsMap = new HashMap<>();
+	private final Map<String, List<AssetLink>> _assetLinksMap = new HashMap<>();
+	private final Map<String, String[]> _assetTagNamesMap = new HashMap<>();
 	private long _companyGroupId;
 	private long _companyId;
 	private String _dataStrategy;
 	private final Set<StagedModelType> _deletionSystemEventModelTypes =
-		new HashSet<StagedModelType>();
+		new HashSet<>();
 	private Date _endDate;
 	private final Map<String, List<ExpandoColumn>> _expandoColumnsMap =
-		new HashMap<String, List<ExpandoColumn>>();
+		new HashMap<>();
 	private Element _exportDataRootElement;
 	private long _groupId;
 	private Element _importDataRootElement;
-	private final Map<String, Lock> _locksMap = new HashMap<String, Lock>();
+	private final Map<String, Lock> _locksMap = new HashMap<>();
 	private ManifestSummary _manifestSummary = new ManifestSummary();
-	private final Set<String> _missingReferences = new HashSet<String>();
+	private final Set<String> _missingReferences = new HashSet<>();
 	private Element _missingReferencesElement;
 	private List<Layout> _newLayouts;
-	private final Map<String, Map<?, ?>> _newPrimaryKeysMaps =
-		new HashMap<String, Map<?, ?>>();
-	private final Set<String> _notUniquePerLayout = new HashSet<String>();
+	private final Map<String, Map<?, ?>> _newPrimaryKeysMaps = new HashMap<>();
+	private final Set<String> _notUniquePerLayout = new HashSet<>();
 	private long _oldPlid;
 	private Map<String, String[]> _parameterMap;
 	private final Map<String, List<KeyValuePair>> _permissionsMap =
-		new HashMap<String, List<KeyValuePair>>();
+		new HashMap<>();
 	private long _plid;
-	private PortletDataContextListener _portletDataContextListener;
-	private final Set<String> _primaryKeys = new HashSet<String>();
+	private String _portletId;
+	private final Set<String> _primaryKeys = new HashSet<>();
 	private boolean _privateLayout;
-	private final Set<String> _references = new HashSet<String>();
-	private final Set<String> _scopedPrimaryKeys = new HashSet<String>();
+	private final Set<String> _references = new HashSet<>();
+	private String _rootPortletId;
+	private final Set<String> _scopedPrimaryKeys = new HashSet<>();
 	private long _scopeGroupId;
 	private String _scopeLayoutUuid;
 	private String _scopeType;

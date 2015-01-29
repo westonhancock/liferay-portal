@@ -90,7 +90,7 @@ public class AssetPublisherExportImportTest
 
 	@Test
 	public void testAnyDLFileEntryType() throws Exception {
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		long dlFileEntryClassNameId = PortalUtil.getClassNameId(
 			DLFileEntry.class);
@@ -123,7 +123,7 @@ public class AssetPublisherExportImportTest
 
 	@Test
 	public void testAnyJournalStructure() throws Exception {
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		long journalArticleClassNameId = PortalUtil.getClassNameId(
 			JournalArticle.class);
@@ -162,7 +162,7 @@ public class AssetPublisherExportImportTest
 		AssetCategory assetCategory = AssetTestUtil.addCategory(
 			group.getGroupId(), assetVocabulary.getVocabularyId());
 
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		preferenceMap.put("queryName0", new String[] {"assetCategories"});
 
@@ -192,10 +192,9 @@ public class AssetPublisherExportImportTest
 
 	@Test
 	public void testChildLayoutScopeIds() throws Exception {
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
-		Group childGroup = GroupTestUtil.addGroup(
-			group.getGroupId(), RandomTestUtil.randomString());
+		Group childGroup = GroupTestUtil.addGroup(group.getGroupId());
 
 		preferenceMap.put(
 			"scopeIds",
@@ -222,7 +221,7 @@ public class AssetPublisherExportImportTest
 
 	@Test
 	public void testDisplayStyle() throws Exception {
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		String displayStyle = RandomTestUtil.randomString();
 
@@ -247,7 +246,7 @@ public class AssetPublisherExportImportTest
 
 	@Test
 	public void testGlobalScopeId() throws Exception {
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		Company company = CompanyLocalServiceUtil.getCompany(
 			layout.getCompanyId());
@@ -271,7 +270,7 @@ public class AssetPublisherExportImportTest
 
 	@Test
 	public void testLayoutScopeId() throws Exception {
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		GroupTestUtil.addGroup(TestPropsValues.getUserId(), layout);
 
@@ -293,7 +292,7 @@ public class AssetPublisherExportImportTest
 
 	@Test
 	public void testLegacyLayoutScopeId() throws Exception {
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		GroupTestUtil.addGroup(TestPropsValues.getUserId(), layout);
 
@@ -339,7 +338,7 @@ public class AssetPublisherExportImportTest
 				new long[] {importedDDMStructure.getStructureId()},
 				serviceContext);
 
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		long dlFileEntryClassNameId = PortalUtil.getClassNameId(
 			DLFileEntry.class);
@@ -396,7 +395,7 @@ public class AssetPublisherExportImportTest
 			ddmStructure.getDefinition(), LocaleUtil.getDefault(),
 			serviceContext);
 
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		long journalArticleClassNameId = PortalUtil.getClassNameId(
 			JournalArticle.class);
@@ -486,7 +485,7 @@ public class AssetPublisherExportImportTest
 				new long[] {importedDDMStructure2.getStructureId()},
 				serviceContext);
 
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		preferenceMap.put(
 			"anyClassTypeDLFileEntryAssetRendererFactory",
@@ -537,7 +536,7 @@ public class AssetPublisherExportImportTest
 			ddmStructure1.getDefinition(), LocaleUtil.getDefault(),
 			serviceContext);
 
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		preferenceMap.put(
 			"anyClassTypeJournalArticleAssetRendererFactory",
@@ -572,7 +571,7 @@ public class AssetPublisherExportImportTest
 
 		GroupTestUtil.addGroup(TestPropsValues.getUserId(), secondLayout);
 
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		GroupTestUtil.addGroup(TestPropsValues.getUserId(), layout);
 
@@ -620,7 +619,7 @@ public class AssetPublisherExportImportTest
 
 		GroupTestUtil.addGroup(TestPropsValues.getUserId(), secondLayout);
 
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		GroupTestUtil.addGroup(TestPropsValues.getUserId(), layout);
 
@@ -734,7 +733,7 @@ public class AssetPublisherExportImportTest
 				TestPropsValues.getUserId(), RandomTestUtil.randomString(),
 				ServiceContextTestUtil.getServiceContext(groupId));
 
-		Map<String, String[]> preferenceMap = new HashMap<String, String[]>();
+		Map<String, String[]> preferenceMap = new HashMap<>();
 
 		preferenceMap.put(
 			"assetVocabularyId",

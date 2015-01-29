@@ -90,10 +90,6 @@
 		</init-param>
 	</filter>
 	<filter>
-		<filter-name>Char Buffer Pool Filter</filter-name>
-		<filter-class>com.liferay.portal.servlet.filters.charbufferpool.CharBufferPoolFilter</filter-class>
-	</filter>
-	<filter>
 		<filter-name>Compound Session Id Filter</filter-name>
 		<filter-class>com.liferay.portal.servlet.filters.compoundsessionid.CompoundSessionIdFilter</filter-class>
 	</filter>
@@ -318,10 +314,6 @@
 		</init-param>
 	</filter>
 	<filter>
-		<filter-name>SSO CAS Filter</filter-name>
-		<filter-class>com.liferay.portal.servlet.filters.sso.cas.CASFilter</filter-class>
-	</filter>
-	<filter>
 		<filter-name>SSO Ntlm Filter</filter-name>
 		<filter-class>com.liferay.portal.servlet.filters.sso.ntlm.NtlmFilter</filter-class>
 	</filter>
@@ -367,7 +359,7 @@
 	</filter>
 	<filter>
 		<filter-name>URL Rewrite Filter</filter-name>
-		<filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>
+		<filter-class>com.liferay.portal.servlet.filters.urlrewrite.UrlRewriteFilter</filter-class>
 		<init-param>
 			<param-name>logLevel</param-name>
 			<param-value>ERROR</param-value>
@@ -378,7 +370,7 @@
 		</init-param>
 		<init-param>
 			<param-name>url-regex-ignore-pattern</param-name>
-			<param-value>^/html/.+\.(css|gif|html|ico|jpg|js|png)(\?.*)?$</param-value>
+			<param-value>(^/combo/)|(^/html/.+\.(css|gif|html|ico|jpg|js|png)(\?.*)?$)</param-value>
 		</init-param>
 	</filter>
 	<filter>
@@ -412,6 +404,10 @@
 			<param-name>portal_property_prefix</param-name>
 			<param-value>xml-rpc.servlet.</param-value>
 		</init-param>
+	</filter>
+	<filter>
+		<filter-name>WebLogic Include Filter</filter-name>
+		<filter-class>com.liferay.portal.servlet.filters.weblogic.WebLogicIncludeFilter</filter-class>
 	</filter>
 	<filter-mapping>
 		<filter-name>Ignore Filter - FTL</filter-name>
@@ -503,18 +499,6 @@
 	<filter-mapping>
 		<filter-name>Sharepoint Filter</filter-name>
 		<url-pattern>/sharepoint/_vti_bin/owssvr.dll</url-pattern>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>SSO CAS Filter</filter-name>
-		<url-pattern>/c/portal/login</url-pattern>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>REQUEST</dispatcher>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>SSO CAS Filter</filter-name>
-		<url-pattern>/c/portal/logout</url-pattern>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>REQUEST</dispatcher>
 	</filter-mapping>
 	<filter-mapping>
 		<filter-name>SSO Ntlm Filter</filter-name>
@@ -1034,5 +1018,10 @@
 		<dispatcher>FORWARD</dispatcher>
 		<dispatcher>INCLUDE</dispatcher>
 		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>WebLogic Include Filter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
 </web-app>

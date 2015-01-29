@@ -120,8 +120,7 @@ public class NewEnvTestRule implements TestRule {
 		List<FrameworkMethod> frameworkMethods = testClass.getAnnotatedMethods(
 			annotationClass);
 
-		List<MethodKey> methodKeys = new ArrayList<MethodKey>(
-			frameworkMethods.size());
+		List<MethodKey> methodKeys = new ArrayList<>(frameworkMethods.size());
 
 		for (FrameworkMethod annotatedFrameworkMethod : frameworkMethods) {
 			methodKeys.add(new MethodKey(annotatedFrameworkMethod.getMethod()));
@@ -145,7 +144,14 @@ public class NewEnvTestRule implements TestRule {
 	}
 
 	protected List<String> createArguments(Description description) {
-		List<String> arguments = new ArrayList<String>();
+		List<String> arguments = new ArrayList<>();
+
+		if (Boolean.getBoolean("junit.debug")) {
+			arguments.add(_JPDA_OPTIONS);
+			arguments.add("-Djunit.debug=true");
+		}
+
+		arguments.add("-Dliferay.mode=test");
 
 		String agentLine = System.getProperty("junit.cobertura.agent");
 
@@ -154,31 +160,12 @@ public class NewEnvTestRule implements TestRule {
 			arguments.add("-Djunit.cobertura.agent=" + agentLine);
 		}
 
-		boolean coberturaParentDynamicallyInstrumented = Boolean.getBoolean(
-			"cobertura.parent.dynamically.instrumented");
-
-		if (coberturaParentDynamicallyInstrumented) {
-			arguments.add("-Dcobertura.parent.dynamically.instrumented=true");
-		}
-
-		boolean junitCodeCoverage = Boolean.getBoolean("junit.code.coverage");
-
-		if (junitCodeCoverage) {
+		if (Boolean.getBoolean("junit.code.coverage")) {
 			arguments.add("-Djunit.code.coverage=true");
 		}
 
-		boolean junitCodeCoverageDump = Boolean.getBoolean(
-			"junit.code.coverage.dump");
-
-		if (junitCodeCoverageDump) {
+		if (Boolean.getBoolean("junit.code.coverage.dump")) {
 			arguments.add("-Djunit.code.coverage.dump=true");
-		}
-
-		boolean junitDebug = Boolean.getBoolean("junit.debug");
-
-		if (junitDebug) {
-			arguments.add(_JPDA_OPTIONS);
-			arguments.add("-Djunit.debug=true");
 		}
 
 		arguments.add("-Djava.net.preferIPv4Stack=true");
@@ -370,6 +357,8 @@ public class NewEnvTestRule implements TestRule {
 				}
 
 				currentThread.setContextClassLoader(contextClassLoader);
+
+				MethodCache.reset();
 			}
 		}
 

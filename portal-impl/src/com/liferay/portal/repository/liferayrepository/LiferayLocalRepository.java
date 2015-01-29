@@ -254,7 +254,7 @@ public class LiferayLocalRepository
 
 	@Override
 	public List<FileEntry> getRepositoryFileEntries(
-		long rootFolderId, int start, int end,
+		long userId, long rootFolderId, int start, int end,
 		OrderByComparator<FileEntry> obc) {
 
 		List<DLFileEntry> dlFileEntries =
@@ -299,6 +299,10 @@ public class LiferayLocalRepository
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * @deprecated As of 7.0.0
+	 */
+	@Deprecated
 	@Override
 	public void updateAsset(
 			long userId, FileEntry fileEntry, FileVersion fileVersion,

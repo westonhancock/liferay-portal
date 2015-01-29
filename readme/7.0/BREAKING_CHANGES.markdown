@@ -20,7 +20,7 @@ feature or API will be dropped in an upcoming version.
 replaces an old API, in spite of the old API being kept in Liferay Portal for
 backwards compatibility.
 
-*This document has been reviewed through commit `6e26e7c`.*
+*This document has been reviewed through commit `d774a2f`.*
 
 ## Breaking Changes Contribution Guidelines
 
@@ -546,7 +546,7 @@ system. Duplication can cause `ClassCastException`s.
 
 #### What changed?
 
-The implementation class `com.liferay.portal.convert.ConvertProcess` was renamed 
+The implementation class `com.liferay.portal.convert.ConvertProcess` was renamed
 `com.liferay.portal.convert.BaseConvertProcess`. An interface named
 `com.liferay.portal.convert.ConvertProcess` was created for it.
 
@@ -573,7 +573,7 @@ should see your convert process in the configuration UI.
 #### Why was this change made?
 
 This change was made as a part of the ongoing strategy to modularize Liferay
-Portal by means of an OSGi container. 
+Portal by means of an OSGi container.
 
 ---------------------------------------
 
@@ -611,6 +611,31 @@ be used now in asset publishers and faceted search.
 
 ---------------------------------------
 
+### Removed the `getClassNamePortletId(String)` Method from `PortalUtil` Class
+- **Date:** 2014-Nov-11
+- **JIRA Ticket:** LPS-50604
+
+#### What changed?
+
+The `getClassNamePortletId(String)` method from the `PortalUtil` class has been
+removed.
+
+#### Who is affected?
+
+This affects any plugin using the method.
+
+#### How should I update my code?
+
+If you are using the method, you should implement it yourself in a private
+utility class.
+
+#### Why was this change made?
+
+This change was needed in order to modularize the portal. Also, the method is no
+longer being used inside Liferay Portal.
+
+---------------------------------------
+
 ### Removed the *Header Web Content* and *Footer Web Content* Preferences from the RSS Portlet
 - **Date:** 2014-Nov-12
 - **JIRA Ticket:** LPS-46984
@@ -618,51 +643,168 @@ be used now in asset publishers and faceted search.
 #### What changed?
 
 The *Header Web Content* and *Footer Web Content* preferences from the RSS
-portlet were removed. The portlet now supports Application Display Templates
-(ADT), which provide templating capabilities that cover the need to support
-these configuration preferences.
+portlet have been removed. The portlet now supports Application Display
+Templates (ADT), which provide templating capabilities that can apply web
+content to the portlet's header and footer.
 
 #### Who is affected?
 
-This affects RSS portlets displayed on pages using these preferences. The
-preferences will no longer be used in the RSS portlet.
+This affects RSS portlets that are displayed on pages and that use these
+preferences. These preferences are no longer used in the RSS portlet.
 
 #### How should I update my code?
 
-Even though these preferences were removed, an ADT can be created to obtain the
-same result. Liferay will publish this ADT so that it can be used in the RSS
-portlet.
+Even though these preferences have been removed, an ADT can be created to
+produce the same result. Liferay will publish this ADT so that it can be used in
+the RSS portlet.
 
 #### Why was this change made?
 
-The support for ADTs in the RSS portlet not only covers this use case, but many
-others, providing a much simpler way to create custom preferences.
+The support for ADTs in the RSS portlet not only covers this use case, but also
+covers many other use cases, providing a much simpler way to create custom
+preferences.
 
 ---------------------------------------
 
-### Method getClassNamePortletId(String) in PortalUtil has been removed
-- **Date:** 2014-Nov-11
-- **JIRA Ticket:** LPS-50604
+### Removed the `createFlyouts` Method from `liferay/util.js` and Related Resources
+- **Date:** 2014-Dec-18
+- **JIRA Ticket:** LPS-52275
 
 #### What changed?
 
-The method getClassNamePortletId(String) from the class PortalUtil has
-been removed. 
+The `Liferay.Util.createFlyouts` method has been completely removed from core
+files.
 
 #### Who is affected?
 
-This will affect any plugin using the method.
+This only affects third party developers who are explicitly calling
+`Liferay.Util.createFlyouts` for the creation of flyout menus. It will not
+affect any menus in core files.
 
 #### How should I update my code?
 
-If you are using that method, you should implement it yourself in a
-private utility class. The code is fairly simple so you shoul not have
-any problems with it.
+If you are using the method, you can achieve the same behavior with CSS.
 
 #### Why was this change made?
 
-This change was needed in order to modularize the portal and it has been 
-decided not to provide this method any more because it is not being used 
-anywhere inside the portal.
+This method was removed due to there being no working use cases in Portal, and
+its overall lack of functionality.
+
+---------------------------------------
+
+### Removed *Asset Tag Properties*
+- **Date:** 2015-Jan-13
+- **JIRA Ticket:** LPS-52588
+
+#### What changed?
+
+The *Asset Tag Properties* have been removed. The service no longer exists and
+the Asset Tag Service API no longer has this parameter. The behavior associated
+with tag properties in the Asset Publisher and XSL portlets has also been
+removed.
+
+#### Who is affected?
+
+This affects any plugin that uses the Asset Tag Properties service.
+
+#### How should I update my code?
+
+If you are using this functionality, you can achieve the same behavior with
+*Asset Category Properties*. If you are using the Asset Tag Service, remove the
+`String[]` tag properties parameter from your calls to the service's methods.
+
+#### Why was this change made?
+
+The Asset Tag Properties were deprecated for the 6.2 version of Liferay Portal.
+
+---------------------------------------
+
+### Removed *asset.publisher.asset.entry.query.processors*
+- **Date:** 2015-Jan-22
+- **JIRA Ticket:** LPS-52966
+
+#### What changed?
+
+The *asset.publisher.asset.entry.query.processors* property has been removed.
+
+#### Who is affected?
+
+This affects any hook that uses the
+*asset.publisher.asset.entry.query.processors* property.
+
+#### How should I update my code?
+
+If you are using this property to register Asset Entry Query Processors, they
+have to be registered in a different way. Your Asset Entery Query Processor
+should implements the interface
+`implements com.liferay.portlet.assetpublisher.util.AssetEntryQueryProcessor`
+and it should have the annotation
+`@Component(service=AssetEntryQueryProcessor.class)`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal.
+
+---------------------------------------
+
+### Remove Support for *Flat* Thread View in Comments
+- **Date:** 2014-Dec-30
+- **JIRA Ticket:** LPS-51876
+
+#### What changed?
+
+Comments will always be displayed using the former *Combination* thread view and
+the number of levels displayed in the tree will be limited.
+
+#### Who is affected?
+
+This affects installations with portal.property discussion.thread.view=flat
+which was the default value.
+
+#### How should I update my code?
+
+There is no need to update anything since the portal.property has been removed
+and the value 'combintation' is hardcoded now in the code.
+
+#### Why was this change made?
+
+Comments flat view was implemented in order to solve performance issues with
+pagination with comments when using a tree view.
+Now we have implemented a nicer solution for pagination that doesn't impact
+performance and that allows to display the comments in a hierarchical view
+making easier to see the replies history.
+
+---------------------------------------
+
+### UserLocalService throws the new UserScreenNameException.MustNotBeReserved instead of ReservedUserScreenNameException
+- **Date:** 2015-Jan-29
+- **JIRA Ticket:** LPS-53113
+
+#### What changed?
+
+Previous to Liferay 7, several methods of UserLocalService could throw a
+ReservedUserScreenNameException when a User is set an screen name which is not
+allowed. From Liferay 7 forward that exception has been deprecated and replaced
+with UserScreenNameException.MustNotBeReserved
+
+#### Who is affected?
+
+Developers who have written code that catch ReservedUserScreenNameException
+
+#### How should I update my code?
+
+Replace ReservedUserScreenNameException with 
+UserScreenNameException.MustNotBeReserved
+
+#### Why was this change made?
+
+A new pattern has been defined for exceptions that provides higher expresivity
+in their names and also more information regarding why the exception was thrown.
+
+The new exception (UserScreenNameException.MustNotBeReserved) has all the 
+necessary information about the reason why the exception was thrown and its 
+context. In particular it contains the userId, the problematic screenName and
+the list of reservedScreenNames.
 
 ---------------------------------------

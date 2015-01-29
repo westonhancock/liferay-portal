@@ -33,6 +33,8 @@ import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.security.permission.ActionKeys;
 import com.liferay.portal.upgrade.v7_0_0.util.JournalArticleTable;
 import com.liferay.portal.util.PortalUtil;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDDeserializerUtil;
+import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructureConstants;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
@@ -170,16 +172,26 @@ public class UpgradeJournal extends UpgradeBaseJournal {
 
 			ps.executeUpdate();
 
+			long ddmStructureVersionId = increment();
+
 			addStructureVersion(
-				increment(), groupId, companyId, getDefaultUserId(companyId),
-				StringPool.BLANK, now, ddmStructureId, localizedName,
-				localizedDescription, xsd, "xml",
+				ddmStructureVersionId, groupId, companyId,
+				getDefaultUserId(companyId), StringPool.BLANK, now,
+				ddmStructureId, localizedName, localizedDescription, xsd, "xml",
 				DDMStructureConstants.TYPE_DEFAULT);
+
+			String ddmStructureLayoutDefinition =
+				getDefaultDDMFormLayoutDefinition(xsd);
+
+			addStructureLayout(
+				PortalUUIDUtil.generate(), increment(), groupId, companyId,
+				getDefaultUserId(companyId), StringPool.BLANK, now, now,
+				ddmStructureVersionId, ddmStructureLayoutDefinition);
 
 			Map<String, Long> bitwiseValues = getBitwiseValues(
 				DDMStructure.class.getName());
 
-			List<String> actionIds = new ArrayList<String>();
+			List<String> actionIds = new ArrayList<>();
 
 			actionIds.add(ActionKeys.VIEW);
 
@@ -218,14 +230,15 @@ public class UpgradeJournal extends UpgradeBaseJournal {
 		try {
 			con = DataAccess.getUpgradeOptimizedConnection();
 
-			StringBundler sb = new StringBundler(6);
+			StringBundler sb = new StringBundler(7);
 
 			sb.append("insert into DDMTemplate (uuid_, templateId, groupId, ");
 			sb.append("companyId, userId, userName, createDate, modifiedDate,");
-			sb.append("classNameId, classPK , templateKey, name, description,");
-			sb.append("type_, mode_, language, script, cacheable, smallImage,");
-			sb.append("smallImageId, smallImageURL) values (?, ?, ?, ?, ?, ?,");
-			sb.append("?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			sb.append("classNameId, classPK, templateKey, version, name, ");
+			sb.append("description, type_, mode_, language, script, ");
+			sb.append("cacheable, smallImage, smallImageId, smallImageURL) ");
+			sb.append("values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ");
+			sb.append("?, ?, ?, ?, ?, ?, ?)");
 
 			String sql = sb.toString();
 
@@ -242,23 +255,29 @@ public class UpgradeJournal extends UpgradeBaseJournal {
 			ps.setLong(9, PortalUtil.getClassNameId(DDMStructure.class));
 			ps.setLong(10, ddmStructureId);
 			ps.setString(11, templateKey);
-			ps.setString(12, localizedName);
-			ps.setString(13, localizedDescription);
-			ps.setString(14, DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY);
-			ps.setString(15, DDMTemplateConstants.TEMPLATE_MODE_CREATE);
-			ps.setString(16, TemplateConstants.LANG_TYPE_FTL);
-			ps.setString(17, script);
-			ps.setBoolean(18, cacheable);
-			ps.setBoolean(19, false);
-			ps.setLong(20, 0);
-			ps.setString(21, StringPool.BLANK);
+			ps.setString(12, DDMTemplateConstants.VERSION_DEFAULT);
+			ps.setString(13, localizedName);
+			ps.setString(14, localizedDescription);
+			ps.setString(15, DDMTemplateConstants.TEMPLATE_TYPE_DISPLAY);
+			ps.setString(16, DDMTemplateConstants.TEMPLATE_MODE_CREATE);
+			ps.setString(17, TemplateConstants.LANG_TYPE_FTL);
+			ps.setString(18, script);
+			ps.setBoolean(19, cacheable);
+			ps.setBoolean(20, false);
+			ps.setLong(21, 0);
+			ps.setString(22, StringPool.BLANK);
 
 			ps.executeUpdate();
+
+			addTemplateVersion(
+				increment(), groupId, companyId, getDefaultUserId(companyId),
+				StringPool.BLANK, now, ddmTemplateId, localizedName,
+				localizedDescription, TemplateConstants.LANG_TYPE_FTL, script);
 
 			Map<String, Long> bitwiseValues = getBitwiseValues(
 				DDMTemplate.class.getName());
 
-			List<String> actionIds = new ArrayList<String>();
+			List<String> actionIds = new ArrayList<>();
 
 			actionIds.add(ActionKeys.VIEW);
 
@@ -386,6 +405,14 @@ public class UpgradeJournal extends UpgradeBaseJournal {
 		Element rootElement = document.getRootElement();
 
 		return rootElement.elements("structure");
+	}
+
+	protected String getDefaultDDMFormLayoutDefinition(String xsd)
+		throws Exception {
+
+		DDMForm ddmForm = DDMFormXSDDeserializerUtil.deserialize(xsd);
+
+		return getDefaultDDMFormLayoutDefinition(ddmForm);
 	}
 
 	protected long getStagingGroupId(long groupId) throws Exception {

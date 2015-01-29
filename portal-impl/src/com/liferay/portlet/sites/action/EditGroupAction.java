@@ -16,7 +16,8 @@ package com.liferay.portlet.sites.action;
 
 import com.liferay.portal.DuplicateGroupException;
 import com.liferay.portal.GroupFriendlyURLException;
-import com.liferay.portal.GroupNameException;
+import com.liferay.portal.GroupInheritContentException;
+import com.liferay.portal.GroupKeyException;
 import com.liferay.portal.GroupParentException;
 import com.liferay.portal.LayoutSetVirtualHostException;
 import com.liferay.portal.LocaleException;
@@ -40,6 +41,7 @@ import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.PropertiesParamUtil;
@@ -47,7 +49,6 @@ import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.liveusers.LiveUsers;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.GroupConstants;
@@ -89,6 +90,8 @@ import com.liferay.portlet.sites.util.SitesUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import javax.portlet.ActionRequest;
@@ -125,28 +128,16 @@ public class EditGroupAction extends PortletAction {
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
 
 		String redirect = ParamUtil.getString(actionRequest, "redirect");
-		String closeRedirect = ParamUtil.getString(
-			actionRequest, "closeRedirect");
-
-		Group group = getLiveGroup(actionRequest);
 
 		try {
 			if (cmd.equals(Constants.ADD) || cmd.equals(Constants.UPDATE)) {
-				String oldFriendlyURL = getGroupFriendlyURL(group);
-				String oldStagingFriendlyURL = getStagingGroupFriendlyURL(
-					group);
-
 				Callable<Group> groupCallable = new GroupCallable(
 					actionRequest);
 
-				group = TransactionalCallableUtil.call(
+				Group group = TransactionalCallableUtil.call(
 					_transactionAttribute, groupCallable);
 
-				Layout layout = themeDisplay.getLayout();
-
-				Group layoutGroup = layout.getGroup();
-
-				if (cmd.equals(Constants.ADD) && layoutGroup.isControlPanel()) {
+				if (cmd.equals(Constants.ADD)) {
 					themeDisplay.setScopeGroupId(group.getGroupId());
 
 					PortletURL siteAdministrationURL =
@@ -181,10 +172,6 @@ public class EditGroupAction extends PortletAction {
 						redirect, "doAsGroupId", group.getGroupId());
 					redirect = HttpUtil.setParameter(
 						redirect, "refererPlid", newRefererPlid);
-
-					closeRedirect = updateCloseRedirect(
-						closeRedirect, group, themeDisplay, oldFriendlyURL,
-						oldStagingFriendlyURL);
 				}
 			}
 			else if (cmd.equals(Constants.DEACTIVATE) ||
@@ -199,9 +186,7 @@ public class EditGroupAction extends PortletAction {
 				resetMergeFailCountAndMerge(actionRequest);
 			}
 
-			sendRedirect(
-				portletConfig, actionRequest, actionResponse, redirect,
-				closeRedirect);
+			sendRedirect(actionRequest, actionResponse, redirect);
 		}
 		catch (Exception e) {
 			if (e instanceof NoSuchGroupException ||
@@ -216,7 +201,8 @@ public class EditGroupAction extends PortletAction {
 					 e instanceof AuthException ||
 					 e instanceof DuplicateGroupException ||
 					 e instanceof GroupFriendlyURLException ||
-					 e instanceof GroupNameException ||
+					 e instanceof GroupInheritContentException ||
+					 e instanceof GroupKeyException ||
 					 e instanceof GroupParentException ||
 					 e instanceof LayoutSetVirtualHostException ||
 					 e instanceof LocaleException ||
@@ -362,7 +348,7 @@ public class EditGroupAction extends PortletAction {
 	protected List<Role> getRoles(PortletRequest portletRequest)
 		throws Exception {
 
-		List<Role> roles = new ArrayList<Role>();
+		List<Role> roles = new ArrayList<>();
 
 		long[] siteRolesRoleIds = StringUtil.split(
 			ParamUtil.getString(portletRequest, "siteRolesRoleIds"), 0L);
@@ -393,7 +379,7 @@ public class EditGroupAction extends PortletAction {
 	protected List<Team> getTeams(PortletRequest portletRequest)
 		throws Exception {
 
-		List<Team> teams = new ArrayList<Team>();
+		List<Team> teams = new ArrayList<>();
 
 		long[] teamsTeamIds = ArrayUtil.unique(
 			StringUtil.split(
@@ -488,66 +474,11 @@ public class EditGroupAction extends PortletAction {
 			Group.class.getName(), actionRequest);
 
 		GroupServiceUtil.updateGroup(
-			groupId, group.getParentGroupId(), group.getName(),
-			group.getDescription(), group.getType(), group.isManualMembership(),
-			group.getMembershipRestriction(), group.getFriendlyURL(), active,
+			groupId, group.getParentGroupId(), group.getNameMap(),
+			group.getDescriptionMap(), group.getType(),
+			group.isManualMembership(), group.getMembershipRestriction(),
+			group.getFriendlyURL(), group.isInheritContent(), active,
 			serviceContext);
-	}
-
-	protected String updateCloseRedirect(
-			String closeRedirect, Group group, ThemeDisplay themeDisplay,
-			String oldFriendlyURL, String oldStagingFriendlyURL)
-		throws PortalException {
-
-		if (Validator.isNull(closeRedirect) || (group == null)) {
-			return closeRedirect;
-		}
-
-		String oldPath = null;
-		String newPath = null;
-
-		if (Validator.isNotNull(oldFriendlyURL)) {
-			oldPath = oldFriendlyURL;
-			newPath = group.getFriendlyURL();
-
-			if (closeRedirect.contains(oldPath)) {
-				closeRedirect = PortalUtil.updateRedirect(
-					closeRedirect, oldPath, newPath);
-			}
-			else {
-				closeRedirect = PortalUtil.getGroupFriendlyURL(
-					LayoutSetLocalServiceUtil.getLayoutSet(
-						group.getGroupId(), false),
-					themeDisplay);
-			}
-		}
-
-		if (Validator.isNotNull(oldStagingFriendlyURL)) {
-			Group stagingGroup = group.getStagingGroup();
-
-			if (GroupLocalServiceUtil.fetchGroup(
-					stagingGroup.getGroupId()) == null) {
-
-				oldPath = oldStagingFriendlyURL;
-				newPath = group.getFriendlyURL();
-			}
-			else {
-				oldPath = oldStagingFriendlyURL;
-				newPath = stagingGroup.getFriendlyURL();
-			}
-
-			if (closeRedirect.contains(oldPath)) {
-				closeRedirect = PortalUtil.updateRedirect(
-					closeRedirect, oldPath, newPath);
-			}
-			else {
-				closeRedirect = PortalUtil.getGroupFriendlyURL(
-					LayoutSetLocalServiceUtil.getLayoutSet(
-						group.getGroupId(), false), themeDisplay);
-			}
-		}
-
-		return closeRedirect;
 	}
 
 	protected Group updateGroup(ActionRequest actionRequest) throws Exception {
@@ -561,10 +492,11 @@ public class EditGroupAction extends PortletAction {
 		long parentGroupId = ParamUtil.getLong(
 			actionRequest, "parentGroupSearchContainerPrimaryKeys",
 			GroupConstants.DEFAULT_PARENT_GROUP_ID);
-		String name = null;
-		String description = null;
+		Map<Locale, String> nameMap = null;
+		Map<Locale, String> descriptionMap = null;
 		int type = 0;
 		String friendlyURL = null;
+		boolean inheritContent = false;
 		boolean active = false;
 		boolean manualMembership = true;
 
@@ -592,18 +524,22 @@ public class EditGroupAction extends PortletAction {
 
 			// Add group
 
-			name = ParamUtil.getString(actionRequest, "name");
-			description = ParamUtil.getString(actionRequest, "description");
+			nameMap = LocalizationUtil.getLocalizationMap(
+				actionRequest, "name");
+			descriptionMap = LocalizationUtil.getLocalizationMap(
+				actionRequest, "description");
 			type = ParamUtil.getInteger(actionRequest, "type");
 			friendlyURL = ParamUtil.getString(actionRequest, "friendlyURL");
-			active = ParamUtil.getBoolean(actionRequest, "active");
 			manualMembership = ParamUtil.getBoolean(
 				actionRequest, "manualMembership");
+			inheritContent = ParamUtil.getBoolean(
+				actionRequest, "inheritContent");
+			active = ParamUtil.getBoolean(actionRequest, "active");
 
 			liveGroup = GroupServiceUtil.addGroup(
-				parentGroupId, GroupConstants.DEFAULT_LIVE_GROUP_ID, name,
-				description, type, manualMembership, membershipRestriction,
-				friendlyURL, true, active, serviceContext);
+				parentGroupId, GroupConstants.DEFAULT_LIVE_GROUP_ID, nameMap,
+				descriptionMap, type, manualMembership, membershipRestriction,
+				friendlyURL, true, inheritContent, active, serviceContext);
 
 			LiveUsers.joinGroup(
 				themeDisplay.getCompanyId(), liveGroup.getGroupId(), userId);
@@ -614,24 +550,26 @@ public class EditGroupAction extends PortletAction {
 
 			liveGroup = GroupLocalServiceUtil.getGroup(liveGroupId);
 
-			name = ParamUtil.getString(
-				actionRequest, "name", liveGroup.getName());
-			description = ParamUtil.getString(
-				actionRequest, "description", liveGroup.getDescription());
+			nameMap = LocalizationUtil.getLocalizationMap(
+				actionRequest, "name", liveGroup.getNameMap());
+			descriptionMap = LocalizationUtil.getLocalizationMap(
+				actionRequest, "description", liveGroup.getDescriptionMap());
 			type = ParamUtil.getInteger(
 				actionRequest, "type", liveGroup.getType());
-			friendlyURL = ParamUtil.getString(
-				actionRequest, "friendlyURL", liveGroup.getFriendlyURL());
-			active = ParamUtil.getBoolean(
-				actionRequest, "active", liveGroup.getActive());
 			manualMembership = ParamUtil.getBoolean(
 				actionRequest, "manualMembership",
 				liveGroup.isManualMembership());
+			friendlyURL = ParamUtil.getString(
+				actionRequest, "friendlyURL", liveGroup.getFriendlyURL());
+			inheritContent = ParamUtil.getBoolean(
+				actionRequest, "inheritContent", liveGroup.getInheritContent());
+			active = ParamUtil.getBoolean(
+				actionRequest, "active", liveGroup.getActive());
 
 			liveGroup = GroupServiceUtil.updateGroup(
-				liveGroupId, parentGroupId, name, description, type,
-				manualMembership, membershipRestriction, friendlyURL, active,
-				serviceContext);
+				liveGroupId, parentGroupId, nameMap, descriptionMap, type,
+				manualMembership, membershipRestriction, friendlyURL,
+				inheritContent, active, serviceContext);
 
 			if (type == GroupConstants.TYPE_SITE_OPEN) {
 				List<MembershipRequest> membershipRequests =
@@ -883,14 +821,22 @@ public class EditGroupAction extends PortletAction {
 			StagingUtil.updateStaging(actionRequest, liveGroup);
 		}
 
+		boolean forceDisable = ParamUtil.getBoolean(
+			actionRequest, "forceDisable");
+
+		if (forceDisable) {
+			GroupLocalServiceUtil.disableStaging(liveGroupId);
+		}
+
 		return liveGroup;
 	}
 
 	private static final int _LAYOUT_SET_VISIBILITY_PRIVATE = 1;
 
-	private static Log _log = LogFactoryUtil.getLog(EditGroupAction.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		EditGroupAction.class);
 
-	private TransactionAttribute _transactionAttribute =
+	private final TransactionAttribute _transactionAttribute =
 		TransactionAttributeBuilder.build(
 			Propagation.REQUIRED, new Class<?>[]{Exception.class});
 
@@ -905,7 +851,7 @@ public class EditGroupAction extends PortletAction {
 			_actionRequest = actionRequest;
 		}
 
-		private ActionRequest _actionRequest;
+		private final ActionRequest _actionRequest;
 
 	}
 

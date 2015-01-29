@@ -76,9 +76,9 @@ public class ConnectionRetryUtil {
 
 	private static final long _MAX_INTERVAL = 30000;
 
-	private static final double _MULTIPLIER = 2.0;
+	private static final double _MULTIPLIER = 1.2;
 
-	private static Map<Long, Integer> _counts = new HashMap<Long, Integer>();
-	private static Map<Long, Long> _delays = new HashMap<Long, Long>();
+	private static final Map<Long, Integer> _counts = new HashMap<>();
+	private static final Map<Long, Long> _delays = new HashMap<>();
 
 }

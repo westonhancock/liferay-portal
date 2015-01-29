@@ -36,6 +36,7 @@ languageId = LocaleUtil.toLanguageId(locale);
 
 String name = ParamUtil.getString(request, "name");
 boolean resizable = ParamUtil.getBoolean(request, "resizable");
+boolean showSource = ParamUtil.getBoolean(request, "showSource");
 
 response.setContentType(ContentTypes.TEXT_JAVASCRIPT);
 %>
@@ -78,7 +79,11 @@ response.setContentType(ContentTypes.TEXT_JAVASCRIPT);
 		['Image', '-', 'Smiley'],
 		'/',
 		['Cut', 'Copy', 'Paste', '-', 'SelectAll', '-', 'Undo', 'Redo'],
-		['Source'],
+
+		<c:if test="<%= showSource %>">
+			['Source'],
+		</c:if>
+
 		['A11YBtn']
 	];
 
@@ -89,6 +94,10 @@ response.setContentType(ContentTypes.TEXT_JAVASCRIPT);
 		['Image']
 	];
 
+	<c:if test="<%= showSource %>">
+		config.toolbar_phone.push(['Source']);
+	</c:if>
+
 	config.toolbar_tablet = [
 		['Bold', 'Italic', 'Underline', 'Strike'],
 		['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
@@ -97,6 +106,10 @@ response.setContentType(ContentTypes.TEXT_JAVASCRIPT);
 		['Link', 'Unlink'],
 		['Image']
 	];
+
+	<c:if test="<%= showSource %>">
+		config.toolbar_tablet.push(['Source']);
+	</c:if>
 
 	config.bodyClass = 'html-editor <%= HtmlUtil.escapeJS(cssClasses) %>';
 

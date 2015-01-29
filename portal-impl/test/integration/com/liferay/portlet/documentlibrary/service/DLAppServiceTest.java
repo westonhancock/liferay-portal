@@ -37,7 +37,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.test.PrefsPropsTemporarySwapper;
 import com.liferay.portal.kernel.workflow.test.WorkflowHandlerInvocationCounter;
 import com.liferay.portal.model.User;
 import com.liferay.portal.security.permission.DoAsUserThread;
@@ -52,6 +51,7 @@ import com.liferay.portal.test.log.ExpectedLog;
 import com.liferay.portal.test.log.ExpectedLogs;
 import com.liferay.portal.test.log.ExpectedType;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.PrefsPropsTemporarySwapper;
 import com.liferay.portal.util.test.RandomTestUtil;
 import com.liferay.portal.util.test.ServiceContextTestUtil;
 import com.liferay.portal.util.test.UserTestUtil;
@@ -341,10 +341,12 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 					expectedLog =
 						"Deadlock found when trying to get lock; try " +
 							"restarting transaction",
-					expectedType = ExpectedType.EXACT),
+					expectedType = ExpectedType.EXACT
+				),
 				@ExpectedLog(
 					expectedLog = "Duplicate entry ",
-					expectedType = ExpectedType.PREFIX)
+					expectedType = ExpectedType.PREFIX
+				)
 			},
 			level = "ERROR", loggerClass = JDBCExceptionReporter.class
 		)
@@ -1535,6 +1537,7 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 
 	private static final String _STRIPPED_FILE_NAME = "Title";
 
-	private static Log _log = LogFactoryUtil.getLog(DLAppServiceTest.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		DLAppServiceTest.class);
 
 }

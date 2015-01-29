@@ -19,7 +19,8 @@
 <%@ page import="com.liferay.portal.DuplicateGroupException" %><%@
 page import="com.liferay.portal.DuplicateTeamException" %><%@
 page import="com.liferay.portal.GroupFriendlyURLException" %><%@
-page import="com.liferay.portal.GroupNameException" %><%@
+page import="com.liferay.portal.GroupInheritContentException" %><%@
+page import="com.liferay.portal.GroupKeyException" %><%@
 page import="com.liferay.portal.GroupParentException" %><%@
 page import="com.liferay.portal.LayoutSetVirtualHostException" %><%@
 page import="com.liferay.portal.MembershipRequestCommentsException" %><%@
@@ -42,6 +43,7 @@ page import="com.liferay.portal.service.permission.TeamPermissionUtil" %><%@
 page import="com.liferay.portal.util.CustomJspRegistryUtil" %><%@
 page import="com.liferay.portal.util.RobotsUtil" %><%@
 page import="com.liferay.portlet.backgroundtask.util.comparator.BackgroundTaskCreateDateComparator" %><%@
+page import="com.liferay.portlet.ratings.transformer.PortletRatingsDefinitionUtil" %><%@
 page import="com.liferay.portlet.rolesadmin.search.GroupRoleChecker" %><%@
 page import="com.liferay.portlet.rolesadmin.search.RoleSearch" %><%@
 page import="com.liferay.portlet.rolesadmin.search.RoleSearchTerms" %><%@

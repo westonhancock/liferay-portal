@@ -309,8 +309,7 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 		);
 	</c:if>
 
-	var tempContent = null;
-
+	var ckEditorContent;
 	var currentToolbarSet;
 
 	var initialToolbarSet = '<%= TextFormatter.format(HtmlUtil.escapeJS(toolbarSet), TextFormatter.M) %>';
@@ -336,24 +335,23 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 
 		function initData() {
 			<c:if test="<%= Validator.isNotNull(initMethod) && !(inlineEdit && Validator.isNotNull(inlineEditSaveURL)) %>">
-				var ckData;
-				if (tempContent) {
-					ckData = tempContent;
-					tempContent = null;
-				}
-				else {
+				if (!ckEditorContent) {
 					<c:choose>
 						<c:when test="<%= (contents != null) %>">
-							ckData = '<%= UnicodeFormatter.toString(contents) %>';
+							ckEditorContent = '<%= UnicodeFormatter.toString(contents) %>';
 						</c:when>
 						<c:otherwise>
-							ckData = window['<%= HtmlUtil.escapeJS(namespace + initMethod) %>']();
+							ckEditorContent = window['<%= HtmlUtil.escapeJS(namespace + initMethod) %>']();
 						</c:otherwise>
 					</c:choose>
 				}
-				ckEditor.setData(ckData,
+
+				ckEditor.setData(
+					ckEditorContent,
 					function() {
 						ckEditor.resetDirty();
+
+						ckEditorContent = '';
 					}
 				);
 			</c:if>
@@ -653,7 +651,7 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 								currentDialog.hide();
 							}
 
-							tempContent =ckeditorInstance.getData();
+							ckEditorContent = ckeditorInstance.getData();
 
 							ckeditorInstance.destroy();
 

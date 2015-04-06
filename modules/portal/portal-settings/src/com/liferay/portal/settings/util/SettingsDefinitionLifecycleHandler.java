@@ -17,11 +17,13 @@ package com.liferay.portal.settings.util;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.settings.GroupServiceSettings;
+import com.liferay.portal.kernel.settings.PortletInstanceSettings;
 import com.liferay.portal.kernel.settings.SettingsFactory;
 import com.liferay.portal.kernel.settings.definition.SettingsDefinition;
 import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.settings.impl.ConfigurationBeanBuilder;
 import com.liferay.portal.settings.impl.GroupServiceSettingsProviderBuilder;
+import com.liferay.portal.settings.impl.PortletInstanceSettingsProviderBuilder;
 import com.liferay.portal.settings.impl.SettingsProviderBuilder;
 
 import java.io.IOException;
@@ -56,6 +58,13 @@ public class SettingsDefinitionLifecycleHandler<S, C> {
 
 			_settingsProviderBuilder = new GroupServiceSettingsProviderBuilder(
 				settingsDefinition, settingsFactory);
+		}
+		else if (PortletInstanceSettings.class.isAssignableFrom(
+					settingsDefinition.getSettingsClass())) {
+
+			_settingsProviderBuilder =
+				new PortletInstanceSettingsProviderBuilder(
+					settingsDefinition, settingsFactory);
 		}
 		else {
 			String className = SettingsDefinitionUtil.getSettingsClassName(
@@ -128,7 +137,7 @@ public class SettingsDefinitionLifecycleHandler<S, C> {
 			Dictionary<String, ?> properties = configuration.getProperties();
 
 			if (properties == null) {
-				properties = _emptDictionary;
+				properties = _emptyDictionary;
 			}
 
 			return properties;
@@ -141,7 +150,7 @@ public class SettingsDefinitionLifecycleHandler<S, C> {
 	private void _registerConfigurationBean() {
 		_configurationBeanServiceRegistration = _bundleContext.registerService(
 			_settingsDefinition.getConfigurationBeanClass(),
-			_configurationBeanBuilder.getConfigurationBean(), _emptDictionary);
+			_configurationBeanBuilder.getConfigurationBean(), _emptyDictionary);
 
 		if (_log.isDebugEnabled()) {
 			String className =
@@ -158,7 +167,7 @@ public class SettingsDefinitionLifecycleHandler<S, C> {
 			@Override
 			public void updated(Dictionary<String, ?> properties) {
 				if (properties == null) {
-					properties = _emptDictionary;
+					properties = _emptyDictionary;
 				}
 
 				_configurationBeanBuilder.updateProperties(properties);
@@ -264,7 +273,7 @@ public class SettingsDefinitionLifecycleHandler<S, C> {
 	private static final Log _log = LogFactoryUtil.getLog(
 		SettingsDefinitionLifecycleHandler.class);
 
-	private static final Dictionary<String, ?> _emptDictionary =
+	private static final Dictionary<String, ?> _emptyDictionary =
 		new HashMapDictionary<>();
 
 	private final BundleContext _bundleContext;

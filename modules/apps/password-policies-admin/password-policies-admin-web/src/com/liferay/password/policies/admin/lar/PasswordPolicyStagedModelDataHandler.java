@@ -14,6 +14,7 @@
 
 package com.liferay.password.policies.admin.lar;
 
+import com.liferay.password.policies.admin.constants.PasswordPoliciesAdminPortletKeys;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
@@ -28,9 +29,19 @@ import com.liferay.portal.service.ServiceContext;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * @author Daniela Zapata Riesco
  */
+@Component(
+	immediate = true,
+	property = {
+		"javax.portlet.name=" +
+			AssetCategoriesAdminPortletKeys.ASSET_CATEGORIES_ADMIN
+	},
+	service = PortletDataHandler.class
+)
 public class PasswordPolicyStagedModelDataHandler
 	extends BaseStagedModelDataHandler<PasswordPolicy> {
 

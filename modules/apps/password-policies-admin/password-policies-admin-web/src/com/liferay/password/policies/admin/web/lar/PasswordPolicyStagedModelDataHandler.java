@@ -14,6 +14,7 @@
 
 package com.liferay.password.policies.admin.web.lar;
 
+import com.liferay.portal.kernel.lar.PortletDataHandler;
 import com.liferay.password.policies.admin.web.constants.PasswordPoliciesAdminPortletKeys;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
@@ -38,7 +39,7 @@ import org.osgi.service.component.annotations.Component;
 	immediate = true,
 	property = {
 		"javax.portlet.name=" +
-			AssetCategoriesAdminPortletKeys.ASSET_CATEGORIES_ADMIN
+			PasswordPoliciesAdminPortletKeys.PASSWORD_POLICIES_ADMIN
 	},
 	service = PortletDataHandler.class
 )

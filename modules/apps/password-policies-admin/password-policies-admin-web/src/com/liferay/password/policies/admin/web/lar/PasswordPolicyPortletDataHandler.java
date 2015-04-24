@@ -43,7 +43,7 @@ import org.osgi.service.component.annotations.Component;
 	immediate = true,
 	property = {
 		"javax.portlet.name=" +
-			AssetCategoriesAdminPortletKeys.ASSET_CATEGORIES_ADMIN
+			PasswordPoliciesAdminPortletKeys.PASSWORD_POLICIES_ADMIN
 	},
 	service = PortletDataHandler.class
 )

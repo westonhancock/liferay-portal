@@ -14,6 +14,7 @@
 
 package com.liferay.password.policies.admin.web.util;
 
+import com.liferay.portlet.passwordpoliciesadmin.util.PasswordPoliciesAdmin;
 import com.liferay.portal.kernel.security.pacl.DoPrivileged;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.model.PasswordPolicy;

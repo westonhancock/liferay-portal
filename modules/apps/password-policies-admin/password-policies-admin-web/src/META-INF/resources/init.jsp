@@ -20,9 +20,9 @@
 page import="com.liferay.portal.PasswordPolicyNameException" %><%@
 page import="com.liferay.portal.security.ldap.LDAPSettingsUtil" %><%@
 page import="com.liferay.portal.service.permission.PasswordPolicyPermissionUtil" %><%@
-page import="com.liferay.portlet.passwordpoliciesadmin.search.OrganizationPasswordPolicyChecker" %><%@
-page import="com.liferay.portlet.passwordpoliciesadmin.search.PasswordPolicyDisplayTerms" %><%@
-page import="com.liferay.portlet.passwordpoliciesadmin.search.PasswordPolicySearch" %><%@
-page import="com.liferay.portlet.passwordpoliciesadmin.search.UserPasswordPolicyChecker" %>
+page import="com.liferay.password.policies.admin.web.search.OrganizationPasswordPolicyChecker" %><%@
+page import="com.liferay.password.policies.admin.web.search.PasswordPolicyDisplayTerms" %><%@
+page import="com.liferay.password.policies.admin.web.search.PasswordPolicySearch" %><%@
+page import="com.liferay.password.policies.admin.web.search.UserPasswordPolicyChecker" %>
 
 <%@ include file="/init-ext.jsp" %>

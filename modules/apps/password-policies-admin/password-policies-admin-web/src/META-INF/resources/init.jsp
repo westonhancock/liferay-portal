@@ -26,6 +26,7 @@
 page import="com.liferay.password.policies.admin.web.search.PasswordPolicyDisplayTerms" %><%@
 page import="com.liferay.password.policies.admin.web.search.PasswordPolicySearch" %><%@
 page import="com.liferay.password.policies.admin.web.search.UserPasswordPolicyChecker" %><%@
+page import="com.liferay.password.policies.admin.web.Drew" %><%@
 page import="com.liferay.portal.DuplicatePasswordPolicyException" %><%@
 page import="com.liferay.portal.kernel.bean.BeanParamUtil" %><%@
 page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@
@@ -52,6 +53,8 @@ page import="javax.portlet.WindowState" %>
 <portlet:defineObjects />
 
 <%
+Drew.print("Hello everyone! Sincerely, DREW.");
+
 WindowState windowState = liferayPortletRequest.getWindowState();
 
 PortletURL currentURLObj = PortletURLUtil.getCurrent(liferayPortletRequest, liferayPortletResponse);

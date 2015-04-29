@@ -2,13 +2,9 @@ Bundle-Name: Liferay Password Policies Admin Web
 Bundle-SymbolicName: com.liferay.password.policies.admin.web
 Bundle-Version: 1.0.0
 Import-Package:\
-	${bnd.jsp.support.imports},\
 	!com.liferay.portal.freemarker,\
 	!jodd.json,\
 	!jodd.util,\
-	com.liferay.portal,\
-	com.liferay.portal.security.ldap,\
-	com.liferay.portal.service.permission,\
 	*
 Include-Resource:\
 	classes,\

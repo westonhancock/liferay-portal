@@ -979,7 +979,7 @@ AUI.add(
 							instance._uploadURL = Liferay.Util.addParams(
 								{
 									redirect: redirect,
-									ts: Lang.now()
+									ts: Date.now()
 								},
 								uploadURL
 							);
